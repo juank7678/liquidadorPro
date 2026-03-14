@@ -1,0 +1,1493 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Liquidador Pro 💰 - Commission Calculator</title>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Space+Grotesk:wght@300;400;700&display=swap"
+        rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/xlsx-js-style@1.2.0/dist/xlsx.bundle.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
+    <style>
+        :root {
+            --bg-main: #030305;
+            --bg-panel: rgba(255, 255, 255, 0.03);
+            --bg-panel-hover: rgba(255, 255, 255, 0.05);
+            --border-color: rgba(255, 255, 255, 0.08);
+            --border-hover: rgba(255, 255, 255, 0.15);
+            --text-main: #f5f5f7;
+            --text-muted: #888890;
+            --accent: #00f0ff;
+            --accent-hover: #00d0ff;
+            --danger: #ff4757;
+            --success: #2ed573;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-main);
+            color: var(--text-main);
+            line-height: 1.6;
+            overflow-x: hidden;
+            background-image: radial-gradient(circle at top right, rgba(0, 240, 255, 0.05) 0%, transparent 40%),
+                radial-gradient(circle at bottom left, rgba(0, 240, 255, 0.02) 0%, transparent 50%);
+            min-height: 100vh;
+        }
+
+        h1,
+        h2,
+        h3,
+        h4,
+        .brand {
+            font-family: 'Space Grotesk', sans-serif;
+            font-weight: 300;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 2rem;
+            display: grid;
+            grid-template-columns: 300px 1fr;
+            gap: 2rem;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            background: var(--bg-panel);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--border-color);
+            border-radius: 20px;
+            padding: 2rem;
+            height: calc(100vh - 4rem);
+            position: sticky;
+            top: 2rem;
+            display: flex;
+            flex-direction: column;
+            gap: 2rem;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+            align-self: start;
+            overflow-y: auto;
+        }
+
+        .brand-logo {
+            font-size: 2rem;
+            color: var(--text-main);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .brand-logo span {
+            color: var(--accent);
+            font-weight: 700;
+        }
+
+        .sidebar-section h3 {
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            color: var(--accent);
+            margin-bottom: 1rem;
+        }
+
+        .radio-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.8rem;
+        }
+
+        .radio-label {
+            display: flex;
+            align-items: center;
+            gap: 0.8rem;
+            cursor: pointer;
+            padding: 0.8rem;
+            background: var(--bg-main);
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            transition: all 0.3s ease;
+        }
+
+        .radio-label:hover {
+            border-color: var(--accent);
+            background: rgba(0, 240, 255, 0.02);
+        }
+
+        .radio-label input[type="radio"] {
+            appearance: none;
+            width: 18px;
+            height: 18px;
+            border: 2px solid var(--border-color);
+            border-radius: 50%;
+            outline: none;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .radio-label input[type="radio"]:checked {
+            border-color: var(--accent);
+        }
+
+        .radio-label input[type="radio"]:checked::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 10px;
+            height: 10px;
+            background: var(--accent);
+            border-radius: 50%;
+            box-shadow: 0 0 10px var(--accent);
+        }
+
+        .input-group {
+            margin-bottom: 1rem;
+        }
+
+        .input-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: var(--text-muted);
+            font-size: 0.9rem;
+        }
+
+        .input-group input {
+            width: 100%;
+            background: var(--bg-main);
+            border: 1px solid var(--border-color);
+            color: var(--text-main);
+            padding: 0.8rem;
+            border-radius: 10px;
+            font-family: 'Space Grotesk', sans-serif;
+            transition: all 0.3s ease;
+            outline: none;
+        }
+
+        .input-group input:focus {
+            border-color: var(--accent);
+            box-shadow: 0 0 15px rgba(0, 240, 255, 0.1);
+        }
+
+        .btn {
+            background: transparent;
+            color: var(--text-main);
+            border: 1px solid var(--border-color);
+            padding: 0.8rem 1.5rem;
+            border-radius: 30px;
+            font-family: 'Space Grotesk', sans-serif;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-size: 0.8rem;
+            cursor: pointer;
+            transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            width: 100%;
+        }
+
+        .btn:hover:not(:disabled) {
+            border-color: var(--accent);
+            background: rgba(0, 240, 255, 0.05);
+            transform: translateY(-2px);
+        }
+
+        .btn.primary {
+            background: rgba(0, 240, 255, 0.1);
+            border-color: var(--accent);
+            color: var(--accent);
+        }
+
+        .btn.primary:hover:not(:disabled) {
+            background: var(--accent);
+            color: var(--bg-main);
+            box-shadow: 0 0 20px rgba(0, 240, 255, 0.4);
+        }
+
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        /* Main Content */
+        .main-content {
+            display: flex;
+            flex-direction: column;
+            gap: 2rem;
+        }
+
+        .header-card {
+            background: var(--bg-panel);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--border-color);
+            border-radius: 20px;
+            padding: 2.5rem;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+        }
+
+        .header-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle at top left, rgba(0, 240, 255, 0.1) 0%, transparent 50%);
+            pointer-events: none;
+        }
+
+        .header-card h1 {
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+            position: relative;
+        }
+
+        .header-card p {
+            color: var(--text-muted);
+            font-size: 1.1rem;
+            position: relative;
+        }
+
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 1.5rem;
+        }
+
+        .metric-card {
+            background: var(--bg-panel);
+            border: 1px solid var(--border-color);
+            padding: 1.5rem;
+            border-radius: 16px;
+            position: relative;
+            overflow: hidden;
+            transition: all 0.4s ease;
+        }
+
+        .metric-card::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 0%;
+            height: 2px;
+            background: var(--accent);
+            transition: width 0.4s ease;
+            box-shadow: 0 0 10px rgba(0, 240, 255, 0.6);
+        }
+
+        .metric-card:hover {
+            transform: translateY(-5px);
+            border-color: var(--border-hover);
+        }
+
+        .metric-card:hover::after {
+            width: 100%;
+        }
+
+        .metric-value {
+            font-size: 2rem;
+            font-family: 'Space Grotesk', sans-serif;
+            font-weight: 300;
+            margin-bottom: 0.5rem;
+        }
+
+        .metric-label {
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            color: var(--accent);
+        }
+
+        /* Uploader Area */
+        .upload-section {
+            background: var(--bg-panel);
+            border: 1px dashed var(--border-color);
+            border-radius: 20px;
+            padding: 3rem 2rem;
+            text-align: center;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            position: relative;
+        }
+
+        .upload-section:hover,
+        .upload-section.dragover {
+            border-color: var(--accent);
+            background: rgba(0, 240, 255, 0.02);
+        }
+
+        .upload-section input[type="file"] {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            opacity: 0;
+            cursor: pointer;
+        }
+
+        .upload-icon {
+            font-size: 3rem;
+            color: var(--accent);
+            margin-bottom: 1rem;
+            filter: drop-shadow(0 0 10px rgba(0, 240, 255, 0.3));
+        }
+
+        .upload-text {
+            font-size: 1.1rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .upload-subtext {
+            color: var(--text-muted);
+            font-size: 0.9rem;
+        }
+
+        /* File List */
+        .file-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 1rem;
+            margin-top: 1.5rem;
+        }
+
+        .file-card {
+            background: var(--bg-panel);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            transition: all 0.3s ease;
+            animation: fadeIn 0.4s ease forwards;
+        }
+
+        .file-card:hover {
+            border-color: var(--accent);
+            transform: translateX(5px);
+        }
+
+        .file-info {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            overflow: hidden;
+        }
+
+        .file-icon {
+            color: var(--accent);
+            font-size: 1.5rem;
+        }
+
+        .file-details h4 {
+            font-size: 0.9rem;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            max-width: 180px;
+        }
+
+        .file-details p {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+        }
+
+        .file-remove {
+            background: transparent;
+            border: none;
+            color: var(--danger);
+            cursor: pointer;
+            padding: 0.5rem;
+            border-radius: 5px;
+            transition: all 0.2s;
+        }
+
+        .file-remove:hover {
+            background: rgba(255, 71, 87, 0.1);
+        }
+
+        /* Action Bar */
+        .action-bar {
+            display: flex;
+            gap: 1rem;
+            margin-top: 1.5rem;
+            justify-content: flex-end;
+        }
+
+        /* Results / Download Section */
+        .results-section {
+            display: none;
+            background: var(--bg-panel);
+            border: 1px solid var(--border-color);
+            border-radius: 20px;
+            padding: 2rem;
+            animation: slideUp 0.5s ease forwards;
+        }
+
+        .results-section.active {
+            display: block;
+        }
+
+        .tabs {
+            display: flex;
+            border-bottom: 1px solid var(--border-color);
+            margin-bottom: 2rem;
+            gap: 2rem;
+        }
+
+        .tab {
+            padding: 1rem 0;
+            color: var(--text-muted);
+            cursor: pointer;
+            position: relative;
+            transition: color 0.3s;
+            font-family: 'Space Grotesk', sans-serif;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-size: 0.9rem;
+        }
+
+        .tab:hover {
+            color: var(--text-main);
+        }
+
+        .tab.active {
+            color: var(--accent);
+            font-weight: bold;
+        }
+
+        .tab.active::after {
+            content: '';
+            position: absolute;
+            bottom: -1px;
+            left: 0;
+            width: 100%;
+            height: 2px;
+            background: var(--accent);
+            box-shadow: 0 0 10px var(--accent);
+        }
+
+        .tab-content {
+            display: none;
+            animation: fadeIn 0.4s ease;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        /* Processing Overlay */
+        .overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(3, 3, 5, 0.8);
+            backdrop-filter: blur(5px);
+            z-index: 1000;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+        }
+
+        .overlay.active {
+            opacity: 1;
+            pointer-events: all;
+        }
+
+        .spinner {
+            width: 50px;
+            height: 50px;
+            border: 3px solid rgba(0, 240, 255, 0.1);
+            border-top-color: var(--accent);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-bottom: 1rem;
+        }
+
+        .overlay-text {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 1.2rem;
+            color: var(--accent);
+            text-shadow: 0 0 10px rgba(0, 240, 255, 0.5);
+        }
+
+        .progress-bar {
+            width: 300px;
+            height: 4px;
+            background: rgba(255, 255, 255, 0.1);
+            margin-top: 20px;
+            border-radius: 2px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: var(--accent);
+            width: 0%;
+            transition: width 0.2s ease;
+        }
+
+        .download-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 1rem;
+        }
+
+        .download-card {
+            background: var(--bg-main);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 1.5rem;
+            text-align: center;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .download-card:hover {
+            border-color: var(--accent);
+            background: rgba(0, 240, 255, 0.05);
+            transform: translateY(-5px);
+        }
+
+        .download-card svg {
+            width: 40px;
+            height: 40px;
+            fill: var(--accent);
+            margin-bottom: 1rem;
+        }
+
+        /* Animations */
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+
+            to {
+                opacity: 1;
+            }
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--bg-main);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--accent);
+        }
+
+        .template-section {
+            background: rgba(0, 240, 255, 0.02);
+            border: 1px dashed var(--accent);
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            position: relative;
+        }
+
+        .template-section input {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            opacity: 0;
+            cursor: pointer;
+        }
+
+        .hide {
+            display: none !important;
+        }
+
+        .result-table-wrapper {
+            margin-top: 1.5rem;
+            overflow-x: auto;
+            border-radius: 10px;
+            border: 1px solid var(--border-color);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            text-align: left;
+        }
+
+        th,
+        td {
+            padding: 1rem;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        th {
+            background: rgba(255, 255, 255, 0.05);
+            font-family: 'Space Grotesk', sans-serif;
+            color: var(--accent);
+            font-weight: normal;
+        }
+
+        tr:hover {
+            background: rgba(255, 255, 255, 0.02);
+        }
+
+        tr:last-child td {
+            border-bottom: none;
+        }
+
+        @media (max-width: 1024px) {
+            .container {
+                grid-template-columns: 1fr;
+            }
+
+            .sidebar {
+                height: auto;
+                position: static;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- Overlay Loader -->
+    <div class="overlay" id="loadingOverlay">
+        <div class="spinner"></div>
+        <div class="overlay-text" id="loadingText">Procesando...</div>
+        <div class="progress-bar">
+            <div class="progress-fill" id="loadingProgress"></div>
+        </div>
+    </div>
+
+    <div class="container">
+        <!-- Sidebar Configuration -->
+        <aside class="sidebar">
+            <div class="brand">
+                <div class="brand-logo">◬ <span>Liquidador Pro</span></div>
+                <p style="color: var(--text-muted); font-size: 0.8rem; margin-top: 0.5rem;">Cierre Diario & Comisiones
+                </p>
+            </div>
+
+            <div class="sidebar-section">
+                <h3>📋 Perfil del Asesor</h3>
+                <div class="radio-group" id="perfilGroup">
+                    <label class="radio-label">
+                        <input type="radio" name="perfil" value="Natural" checked>
+                        <span>Natural 👤</span>
+                    </label>
+                    <label class="radio-label">
+                        <input type="radio" name="perfil" value="Jurídico">
+                        <span>Jurídico 🏢</span>
+                    </label>
+                </div>
+            </div>
+
+            <div class="sidebar-section" id="fiscalParams" style="opacity: 0.5; pointer-events: none;">
+                <h3>📊 Parámetros Fiscales</h3>
+                <div class="input-group">
+                    <label for="retencion">Retención en la fuente (%)</label>
+                    <input type="number" id="retencion" value="11.0" step="0.1" min="0" max="100">
+                </div>
+                <div class="input-group">
+                    <label for="iva">IVA (%)</label>
+                    <input type="number" id="iva" value="19.0" step="0.1" min="0" max="100">
+                </div>
+                <p style="font-size: 0.8rem; color: var(--text-muted); margin-top: 0.5rem;">
+                    💡 Fórmula: Total = Comisiones - Retención + IVA
+                </p>
+            </div>
+
+            <div style="flex-grow: 1;"></div>
+
+            <div class="sidebar-section">
+                <h3>🔄 Acciones</h3>
+                <button class="btn" id="btnRestart" onclick="resetApp()">🗑️ Reiniciar Jornada</button>
+                <div style="margin-top: 1rem; font-size: 0.75rem; color: var(--text-muted); text-align: center;">
+                    <span id="currentDate"></span><br>
+                    Versión: Client-Side Browser | v3.0
+                </div>
+            </div>
+        </aside>
+
+        <!-- Main Content Area -->
+        <main class="main-content">
+
+            <div class="header-card">
+                <h1>Sistema de Control de <span>Comisiones</span></h1>
+                <p>Gestión automatizada de facturación y pagos, con tecnología client-side.</p>
+            </div>
+
+            <div class="metrics-grid">
+                <div class="metric-card">
+                    <div class="metric-value" id="valProcessed">0</div>
+                    <div class="metric-label">Archivos Procesados</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-value" id="valTotal">$0</div>
+                    <div class="metric-label">Total Comisiones</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-value" id="valErrors">0</div>
+                    <div class="metric-label" style="color: var(--danger);">Errores</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-value" id="valStatus">⏳</div>
+                    <div class="metric-label" style="color: var(--success);">Estado Consolidado</div>
+                </div>
+            </div>
+
+            <!-- Upload Area -->
+            <div class="upload-section" id="dropZone">
+                <input type="file" id="fileInput" multiple accept=".xml">
+                <div class="upload-icon">⚡</div>
+                <div class="upload-text">Arrastra los archivos XML aquí o haz clic</div>
+                <div class="upload-subtext">Soporte para múltiples archivos. Procesamiento local seguro.</div>
+            </div>
+
+            <div id="fileListContainer" class="hide">
+                <h3 style="margin-top: 1rem; font-size: 1rem;">📋 Archivos Seleccionados (<span id="fileCount">0</span>)
+                </h3>
+                <div class="file-list" id="fileList"></div>
+                <div class="action-bar">
+                    <button class="btn" style="width: auto;" onclick="clearFiles()">🧹 Limpiar Todo</button>
+                    <button class="btn primary" style="width: auto;" id="btnProcess" onclick="processFiles()">🚀
+                        Procesar Archivos</button>
+                </div>
+            </div>
+
+            <!-- Results Center -->
+            <div class="results-section" id="resultsSection">
+                <h2>📥 Centro de Descargas y Resultados</h2>
+                <div class="tabs" style="margin-top: 1.5rem;">
+                    <div class="tab active" onclick="switchTab(1)">📄 Resultados</div>
+                    <div class="tab" onclick="switchTab(2)">📊 Consolidado General</div>
+                    <div class="tab" onclick="switchTab(3)">🏦 Archivo Banco</div>
+                </div>
+
+                <!-- Tab 1: Individual -->
+                <div class="tab-content active" id="tab1">
+                    <div
+                        style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                        <p style="color: var(--text-muted);">Descarga el paquete ZIP con todas las liquidaciones
+                            individuales procesadas hoy.</p>
+                        <button class="btn primary" style="width: auto;" onclick="downloadZip()">📦 Descargar Todas
+                            (ZIP)</button>
+                    </div>
+
+                    <div class="result-table-wrapper">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Ejecutivo</th>
+                                    <th>Archivo Fuente</th>
+                                    <th style="text-align: right;">Total Comisiones</th>
+                                    <th style="text-align: right;">Total a Pagar</th>
+                                </tr>
+                            </thead>
+                            <tbody id="resultsTableBody">
+                                <!-- Populated dynamically -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Tab 2: Consolidado -->
+                <div class="tab-content" id="tab2">
+                    <p style="color: var(--text-muted); margin-bottom: 1.5rem;">Este reporte resume todas las
+                        liquidaciones procesadas en un solo archivo Excel, con una hoja de resumen general.</p>
+                    <button class="btn primary" style="width: 300px;" onclick="downloadConsolidated()">📊 Descargar
+                        Consolidado General</button>
+                </div>
+
+                <!-- Tab 3: Archivo Banco -->
+                <div class="tab-content" id="tab3">
+                    <p style="color: var(--text-muted); margin-bottom: 1rem;">Genera el archivo de dispersión bancaria
+                        usando el consolidado como fuente.</p>
+
+                    <div class="template-section">
+                        <input type="file" id="bankTemplateInput" accept=".xlsx,.xls">
+                        <div style="text-align: center;">
+                            <h4 style="color: var(--accent); margin-bottom: 0.5rem;" id="templateText">📋 Cargar
+                                Plantilla del Banco ( BANCO PAGO COMISIONES ASESORES.xlsx )</h4>
+                            <p style="font-size: 0.8rem; color: var(--text-muted);">Haz clic para seleccionar la
+                                plantilla. Requerida para generar el archivo.</p>
+                        </div>
+                    </div>
+
+                    <button class="btn primary" style="width: 300px;" id="btnBank" onclick="downloadBankFile()"
+                        disabled>🏦 Generar Archivo Banco</button>
+                </div>
+            </div>
+
+        </main>
+    </div>
+
+    <!-- Core Application Logic -->
+    <script>
+        // State
+        let selectedFiles = [];
+        let processedData = [];
+        let errors = [];
+        let bankTemplateFile = null;
+        let bankTemplateWorkbook = null;
+
+        // UI Initialization
+        document.getElementById('currentDate').innerText = `Fecha: ${new Date().toLocaleDateString()}`;
+
+        // Perfil Change Logic
+        const radios = document.querySelectorAll('input[name="perfil"]');
+        const fiscalParams = document.getElementById('fiscalParams');
+
+        radios.forEach(r => {
+            r.addEventListener('change', (e) => {
+                if (e.target.value === 'Jurídico') {
+                    fiscalParams.style.opacity = '1';
+                    fiscalParams.style.pointerEvents = 'all';
+                } else {
+                    fiscalParams.style.opacity = '0.5';
+                    fiscalParams.style.pointerEvents = 'none';
+                }
+            });
+        });
+
+        // File Drag & Drop Logic
+        const dropZone = document.getElementById('dropZone');
+        const fileInput = document.getElementById('fileInput');
+
+        ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+            dropZone.addEventListener(eventName, preventDefaults, false);
+        });
+
+        function preventDefaults(e) { e.preventDefault(); e.stopPropagation(); }
+
+        ['dragenter', 'dragover'].forEach(eventName => {
+            dropZone.addEventListener(eventName, () => dropZone.classList.add('dragover'), false);
+        });
+
+        ['dragleave', 'drop'].forEach(eventName => {
+            dropZone.addEventListener(eventName, () => dropZone.classList.remove('dragover'), false);
+        });
+
+        dropZone.addEventListener('drop', (e) => handleFiles(e.dataTransfer.files), false);
+        fileInput.addEventListener('change', (e) => handleFiles(e.target.files), false);
+
+        function handleFiles(files) {
+            const newFiles = Array.from(files).filter(f => f.name.toLowerCase().endsWith('.xml'));
+            selectedFiles = [...selectedFiles, ...newFiles];
+            updateFileList();
+        }
+
+        function updateFileList() {
+            const container = document.getElementById('fileListContainer');
+            const list = document.getElementById('fileList');
+            const count = document.getElementById('fileCount');
+
+            if (selectedFiles.length > 0) {
+                container.classList.remove('hide');
+                count.innerText = selectedFiles.length;
+
+                list.innerHTML = selectedFiles.map((f, i) => `
+                    <div class="file-card">
+                        <div class="file-info">
+                            <div class="file-icon">◬</div>
+                            <div class="file-details">
+                                <h4>${f.name}</h4>
+                                <p>${(f.size / 1024).toFixed(1)} KB</p>
+                            </div>
+                        </div>
+                        <button class="file-remove" onclick="removeFile(${i})">✕</button>
+                    </div>
+                `).join('');
+
+                document.getElementById('btnProcess').innerText = `🚀 Procesar Archivos (${selectedFiles.length})`;
+            } else {
+                container.classList.add('hide');
+            }
+        }
+
+        function removeFile(index) {
+            selectedFiles.splice(index, 1);
+            updateFileList();
+        }
+
+        function clearFiles() {
+            selectedFiles = [];
+            fileInput.value = '';
+            updateFileList();
+        }
+
+        function resetApp() {
+            clearFiles();
+            processedData = [];
+            errors = [];
+            document.getElementById('resultsSection').classList.remove('active');
+            updateMetrics();
+            alert('Jornada reiniciada exitosamente.');
+        }
+
+        function updateMetrics() {
+            document.getElementById('valProcessed').innerText = processedData.length;
+
+            const total = processedData.reduce((sum, item) => sum + item.total_a_pagar, 0);
+            document.getElementById('valTotal').innerText = '$' + total.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+
+            document.getElementById('valErrors').innerText = errors.length;
+            document.getElementById('valStatus').innerText = processedData.length > 0 ? "✅" : "⏳";
+        }
+
+        // XML Processing Logic
+        function parseNumeric(val) {
+            if (!val) return 0;
+            let s = String(val).trim().replace('$', '').replace(/ /g, '').replace(/\xa0/g, '');
+            if (s.includes(',') && s.includes('.')) {
+                if (s.lastIndexOf(',') > s.lastIndexOf('.')) s = s.replace(/\./g, '').replace(/,/g, '.');
+                else s = s.replace(/,/g, '');
+            } else if (s.includes(',')) {
+                s = s.replace(/,/g, '.');
+            }
+            return parseFloat(s) || 0;
+        }
+
+        async function processFiles() {
+            if (selectedFiles.length === 0) return;
+
+            const isJuridico = document.querySelector('input[name="perfil"]:checked').value === 'Jurídico';
+            const retPct = parseFloat(document.getElementById('retencion').value) / 100 || 0;
+            const ivaPct = parseFloat(document.getElementById('iva').value) / 100 || 0;
+
+            const overlay = document.getElementById('loadingOverlay');
+            const progressFill = document.getElementById('loadingProgress');
+            const overlayText = document.getElementById('loadingText');
+
+            overlay.classList.add('active');
+
+            // We append instead of wiping out 'processedData' to allow consolidating across profiles
+            // But we first avoid duplicating identical files from previous runs
+            const oldNames = processedData.map(p => p.fileName);
+            const filesToProcess = selectedFiles.filter(f => !oldNames.includes(f.name));
+
+            // Note: 'errors' array clears for each fresh process run instance 
+            errors = [];
+
+            if (filesToProcess.length === 0) {
+                overlay.classList.remove('active');
+                alert('Los archivos cargados ya fueron procesados previamente. Para volver a procesarlos con un perfil diferente, limpia la lista y vuelve a cargarlos.');
+                return;
+            }
+
+            const parser = new DOMParser();
+
+            for (let i = 0; i < filesToProcess.length; i++) {
+                const file = filesToProcess[i];
+                progressFill.style.width = `${((i + 1) / filesToProcess.length) * 100}%`;
+                overlayText.innerText = `Procesando ${i + 1}/${filesToProcess.length}: ${file.name}`;
+
+                try {
+                    const text = await file.text();
+                    // Fall back to text/html to parse XML more flexibly, similarly to BeautifulSoup.
+                    const doc = parser.parseFromString(text, "text/html");
+
+                    // Allow nodes like 'Row' or 'ss:Row'
+                    const allRows = Array.from(doc.getElementsByTagName('*')).filter(el => el.nodeName.toLowerCase().endsWith('row'));
+                    if (allRows.length < 2) throw new Error("XML sin datos suficientes o formato no soportado");
+
+                    let n_liq = "N/A", ejecutivo = "Desconocido", fecha_liq = "";
+                    let startIndex = -1;
+
+                    const extractText = (node) => {
+                        return Array.from(node.getElementsByTagName('*'))
+                            .filter(el => el.nodeName.toLowerCase().endsWith('data'))
+                            .map(d => d.textContent.trim());
+                    };
+
+                    allRows.forEach((row, idx) => {
+                        const cellData = extractText(row);
+                        const joined = cellData.join(" ");
+
+                        cellData.forEach(c => {
+                            if (c.includes("Liquidación N°")) n_liq = c;
+                            else if (c.includes("Ejecutivo:")) ejecutivo = c.replace("Ejecutivo:", "").trim();
+                            else if (c.includes("Comisiones al")) fecha_liq = c.split("al")[1]?.trim() || fecha_liq;
+                        });
+
+                        if (joined.includes("Aseguradora") && startIndex === -1) {
+                            startIndex = idx;
+                        }
+                    });
+
+                    if (startIndex === -1) throw new Error("No se encontró la cabecera de datos (Aseguradora)");
+
+                    // Read Data Headers
+                    const headers = extractText(allRows[startIndex]).slice(0, 13);
+                    const tableData = [];
+
+                    for (let r = startIndex + 1; r < allRows.length; r++) {
+                        const cells = extractText(allRows[r]);
+                        if (cells.length > 0) tableData.push(cells.slice(0, 13));
+                    }
+
+                    // Cleaning Data, finding commissions
+                    let total_comision = 0;
+                    const cleanTableData = [];
+
+                    tableData.forEach(rowArr => {
+                        const val = parseNumeric(rowArr[rowArr.length - 1]);
+                        if (val !== 0) {
+                            total_comision += val;
+                            cleanTableData.push({ row: rowArr, comision: val });
+                        }
+                    });
+
+                    if (cleanTableData.length === 0) throw new Error("No se encontraron comisiones pagables");
+
+                    let retencion_val = 0, iva_val = 0, total_a_pagar = total_comision;
+
+                    if (isJuridico) {
+                        retencion_val = total_comision * retPct;
+                        iva_val = total_comision * ivaPct;
+                        total_a_pagar = total_comision - retencion_val + iva_val;
+                    }
+
+                    const safeName = ejecutivo.replace(/[^\w\s-]/gi, '').trim().replace(/ /g, '_') || "Sin_Nombre";
+
+                    processedData.push({
+                        fileName: file.name,
+                        safeName: `Liq_${safeName}.xlsx`,
+                        n_liq: n_liq,
+                        ejecutivo: ejecutivo,
+                        fecha_liq: fecha_liq,
+                        headers: headers.slice(0, 13),
+                        rows: cleanTableData,
+                        isJuridico: isJuridico,
+                        total_comision: total_comision,
+                        retencion_pct: isJuridico ? retPct * 100 : 0,
+                        retencion_val: retencion_val,
+                        iva_pct: isJuridico ? ivaPct * 100 : 0,
+                        iva_val: iva_val,
+                        total_a_pagar: total_a_pagar
+                    });
+
+                } catch (err) {
+                    errors.push({ file: file.name, error: err.message });
+                }
+            }
+
+            // Post-process UI updates
+            updateMetrics();
+
+            if (processedData.length > 0) {
+                document.getElementById('resultsSection').classList.add('active');
+
+                const tbody = document.getElementById('resultsTableBody');
+                tbody.innerHTML = processedData.map(p => `
+                    <tr>
+                        <td style="font-weight: 500;">${p.ejecutivo}</td>
+                        <td style="color: var(--text-muted); font-size: 0.9em;">${p.fileName}</td>
+                        <td style="text-align: right;">$${p.total_comision.toLocaleString('en', { minimumFractionDigits: 2 })}</td>
+                        <td style="text-align: right; color: var(--accent); font-weight:bold;">$${p.total_a_pagar.toLocaleString('en', { minimumFractionDigits: 2 })}</td>
+                    </tr>
+                `).join('');
+
+                // Files remain in the list so users can switch profiles and consolidate.
+                // Re-processing clears processedData from memory only initially, 
+                // but the UI won't delete the physical list selection.
+                // We disabled automatic success cleanup as requested.
+                // updateFileList();
+            }
+
+            if (errors.length > 0) {
+                const errorMsg = errors.map(e => `• ${e.file}: ${e.error}`).join('\n');
+                alert(`Hubo errores al procesar ${errors.length} archivos:\n\n${errorMsg}`);
+                console.warn(errors);
+            }
+
+            setTimeout(() => {
+                overlay.classList.remove('active');
+            }, 500);
+        }
+
+        // Tab Switching
+        function switchTab(num) {
+            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+
+            document.querySelectorAll('.tab')[num - 1].classList.add('active');
+            document.getElementById(`tab${num}`).classList.add('active');
+        }
+
+        // Generate Excel Workbooks for Individual Liquidations
+        function generateIndividualWorkbook(data) {
+            const wb = XLSX.utils.book_new();
+            const wsData = [];
+
+            wsData.push([data.n_liq]);
+            wsData.push(["Ejecutivo: " + data.ejecutivo.toUpperCase()]);
+            wsData.push(["Descripción: LIQUIDACION DE COMISIONES AL " + data.fecha_liq]);
+            wsData.push(["Fecha de generación:", new Date().toLocaleString()]);
+            wsData.push([]); // Empty row 5
+
+            // row 6 headers
+            wsData.push(data.headers);
+
+            data.rows.forEach(r => {
+                wsData.push(r.row.slice(0, 13));
+            });
+
+            // Totals
+            wsData.push([]);
+            const emptyPad = Array(Math.max(0, data.headers.length - 2)).fill("");
+
+            if (!data.isJuridico) {
+                wsData.push([...emptyPad, "TOTAL LIQUIDACIÓN", data.total_comision]);
+            } else {
+                wsData.push([...emptyPad, "TOTAL COMISIONES", data.total_comision]);
+                wsData.push([]);
+                wsData.push([]);
+
+                const fPad = Array(5).fill("");
+                wsData.push([...fPad, "DETALLE DE FACTURACIÓN"]);
+                wsData.push([...fPad, "FECHA DE FACTURA", new Date().toLocaleDateString()]);
+                wsData.push([...fPad, "TOTAL COMISIONES", data.total_comision]);
+                wsData.push([...fPad, `RETENCIÓN EN LA FUENTE (${data.retencion_pct}%)`, Math.round(data.retencion_val)]);
+                wsData.push([...fPad, `IVA GENERADO (${data.iva_pct}%)`, Math.round(data.iva_val)]);
+                wsData.push([...fPad, "TOTAL A PAGAR", data.total_a_pagar]);
+            }
+
+            // Apply some basic structure and number formatting for Excel without many zeros
+            const ws = XLSX.utils.aoa_to_sheet(wsData);
+
+            // Standardizing cell borders and alignments
+            const borderStyle = {
+                top: { style: "thin", color: { rgb: "000000" } },
+                bottom: { style: "thin", color: { rgb: "000000" } },
+                left: { style: "thin", color: { rgb: "000000" } },
+                right: { style: "thin", color: { rgb: "000000" } }
+            };
+
+            const headerStyle = {
+                fill: { fgColor: { rgb: "4472C4" } },
+                font: { bold: true, color: { rgb: "FFFFFF" } },
+                border: borderStyle,
+                alignment: { horizontal: "center", vertical: "center" }
+            };
+
+            const totalStyle = {
+                fill: { fgColor: { rgb: "FFFF00" } },
+                font: { bold: true },
+                border: borderStyle
+            };
+
+            // Style application
+            const range = XLSX.utils.decode_range(ws['!ref']);
+            for (let R = range.s.r; R <= range.e.r; ++R) {
+                for (let C = range.s.c; C <= range.e.c; ++C) {
+                    const cell_address = { c: C, r: R };
+                    const cell_ref = XLSX.utils.encode_cell(cell_address);
+                    if (!ws[cell_ref]) continue;
+
+                    // Base format mapping
+                    if (!ws[cell_ref].s) ws[cell_ref].s = {};
+
+                    // Row 0-2: Titles
+                    if (R === 0 && C === 0) ws[cell_ref].s = { font: { bold: true, sz: 14, color: { rgb: "1F4E78" } } };
+                    if (R === 1 && C === 0) ws[cell_ref].s = { font: { bold: true, sz: 12 } };
+                    if (R === 2 && C === 0) ws[cell_ref].s = { font: { italic: true } };
+                    if (R === 3 && C === 0) ws[cell_ref].s = { font: { bold: true } };
+
+                    // Row 5: Headers
+                    if (R === 5) {
+                        ws[cell_ref].s = headerStyle;
+                    }
+
+                    // Data Rows (R >= 6) and formatting
+                    if (R >= 6) {
+                        ws[cell_ref].s.border = borderStyle;
+                        ws[cell_ref].s.alignment = { vertical: 'center' };
+                    }
+
+                    // Number format: drop trailing zero decimal, add comma
+                    if (ws[cell_ref].t === 'n') {
+                        ws[cell_ref].z = '#,##0.##';
+                        if (R >= 6) ws[cell_ref].s.alignment = { horizontal: 'right', vertical: 'center' };
+                    }
+
+                    // Highlight totals depending on string contents
+                    if (ws[cell_ref].v === "TOTAL LIQUIDACIÓN" || ws[cell_ref].v === "TOTAL COMISIONES" || ws[cell_ref].v === "FECHA DE FACTURA") {
+                        ws[cell_ref].s = totalStyle;
+                        // highlight the value cell next to it
+                        const next_cell = XLSX.utils.encode_cell({ c: C + 1, r: R });
+                        if (ws[next_cell]) { ws[next_cell].s = totalStyle; ws[next_cell].z = '#,##0.##'; }
+                    }
+
+                    if (ws[cell_ref].v === "DETALLE DE FACTURACIÓN" || ws[cell_ref].v === "TOTAL A PAGAR") {
+                        ws[cell_ref].s = { font: { bold: true, sz: 12, color: { rgb: "1F4E78" } }, border: borderStyle, alignment: { horizontal: 'left' } };
+                        const next_cell = XLSX.utils.encode_cell({ c: C + 1, r: R });
+                        if (ws[next_cell]) { ws[next_cell].s = { ...ws[cell_ref].s, alignment: { horizontal: 'right' } }; ws[next_cell].z = '#,##0.##'; }
+                    }
+                }
+            }
+
+            // Remove borders from the fPad (columns 0-4) on Juridico detail rows
+            // so they don't render as blank bordered cells.
+            if (data.isJuridico) {
+                const detailLabels = [
+                    "DETALLE DE FACTURACIÓN", "FECHA DE FACTURA",
+                    "TOTAL COMISIONES", `RETENCIÓN EN LA FUENTE (${data.retencion_pct}%)`,
+                    `IVA GENERADO (${data.iva_pct}%)`, "TOTAL A PAGAR"
+                ];
+                const noBorderStyle = {
+                    top: { style: "none" }, bottom: { style: "none" },
+                    left: { style: "none" }, right: { style: "none" }
+                };
+                for (let R = range.s.r; R <= range.e.r; ++R) {
+                    const labelCell = XLSX.utils.encode_cell({ c: 5, r: R });
+                    if (ws[labelCell] && detailLabels.includes(ws[labelCell].v)) {
+                        for (let C = 0; C < 5; C++) {
+                            const padRef = XLSX.utils.encode_cell({ c: C, r: R });
+                            ws[padRef] = { v: "", t: "s", s: { border: noBorderStyle } };
+                        }
+                    }
+                }
+            }
+
+            // Apply column widths
+            const colWidths = [];
+            for (let i = 0; i < data.headers.length; i++) {
+                colWidths.push({ wch: Math.max(15, data.headers[i].length + 2) });
+            }
+            ws['!cols'] = colWidths;
+
+            XLSX.utils.book_append_sheet(wb, ws, "Liquidacion");
+            return wb;
+        }
+
+        async function downloadZip() {
+            if (processedData.length === 0) return;
+            const zip = new JSZip();
+
+            processedData.forEach((d, i) => {
+                const wb = generateIndividualWorkbook(d);
+                const wbout = XLSX.write(wb, { bookType: 'xlsx', type: 'array' });
+                // ensure unique names
+                zip.file(`${i + 1}_${d.safeName}`, wbout);
+            });
+
+            const content = await zip.generateAsync({ type: "blob" });
+            saveAs(content, `Liquidaciones_${new Date().toISOString().split('T')[0]}.zip`);
+        }
+
+        function downloadConsolidated() {
+            if (processedData.length === 0) return;
+            const wb = XLSX.utils.book_new();
+
+            // Sheet 1: General Summary
+            const sumData = [
+                ["CONSOLIDADO GENERAL DE PAGOS"],
+                [`Fecha: ${new Date().toLocaleString()}`],
+                [],
+                ["Ejecutivo", "Total Pago", "Tipo", "Archivo Origen"]
+            ];
+
+            let granTotal = 0;
+            processedData.sort((a, b) => a.ejecutivo.localeCompare(b.ejecutivo)).forEach(p => {
+                sumData.push([p.ejecutivo, p.total_a_pagar, p.isJuridico ? "Jurídico" : "Natural", p.fileName]);
+                granTotal += p.total_a_pagar;
+            });
+
+            sumData.push([]);
+            sumData.push(["GRAN TOTAL A DISPERSAR:", granTotal]);
+
+
+            const ws = XLSX.utils.aoa_to_sheet(sumData);
+
+            // Apply Styles to Consolidated sheet
+            const borderStyle = {
+                top: { style: "thin", color: { rgb: "000000" } },
+                bottom: { style: "thin", color: { rgb: "000000" } },
+                left: { style: "thin", color: { rgb: "000000" } },
+                right: { style: "thin", color: { rgb: "000000" } }
+            };
+
+            const headerStyle = {
+                fill: { fgColor: { rgb: "4472C4" } },
+                font: { bold: true, color: { rgb: "FFFFFF" } },
+                border: borderStyle,
+                alignment: { horizontal: "center", vertical: "center" }
+            };
+
+            const range = XLSX.utils.decode_range(ws['!ref']);
+            for (let R = range.s.r; R <= range.e.r; ++R) {
+                for (let C = range.s.c; C <= range.e.c; ++C) {
+                    const cell_address = { c: C, r: R };
+                    const cell_ref = XLSX.utils.encode_cell(cell_address);
+                    if (!ws[cell_ref]) continue;
+                    if (!ws[cell_ref].s) ws[cell_ref].s = {};
+
+                    // Titles
+                    if (R === 0 && C === 0) ws[cell_ref].s = { font: { bold: true, sz: 14, color: { rgb: "1F4E78" } } };
+                    if (R === 1 && C === 0) ws[cell_ref].s = { font: { italic: true } };
+
+                    // Headers
+                    if (R === 3) ws[cell_ref].s = headerStyle;
+
+                    // Data Rows
+                    if (R >= 4 && ws[cell_ref].v !== "GRAN TOTAL A DISPERSAR:" && R !== range.e.r) {
+                        ws[cell_ref].s.border = borderStyle;
+                        ws[cell_ref].s.alignment = { vertical: 'center' };
+                    }
+
+                    // Numbers
+                    if (ws[cell_ref].t === 'n') {
+                        ws[cell_ref].z = '#,##0.##';
+                        if (R >= 4) ws[cell_ref].s.alignment = { horizontal: 'right', vertical: 'center' };
+                    }
+
+                    // Grand Total
+                    if (ws[cell_ref].v === "GRAN TOTAL A DISPERSAR:") {
+                        ws[cell_ref].s = { font: { bold: true, sz: 12 }, fill: { fgColor: { rgb: "FFFF00" } }, border: borderStyle, alignment: { horizontal: 'right' } };
+                        const next_cell = XLSX.utils.encode_cell({ c: C + 1, r: R });
+                        if (ws[next_cell]) { ws[next_cell].s = { font: { bold: true, sz: 12 }, fill: { fgColor: { rgb: "FFFF00" } }, border: borderStyle }; ws[next_cell].z = '#,##0.##'; }
+                    }
+                }
+            }
+
+            ws['!cols'] = [{ wch: 35 }, { wch: 20 }, { wch: 15 }, { wch: 40 }];
+            XLSX.utils.book_append_sheet(wb, ws, "RESUMEN GENERAL");
+
+            // Download
+            XLSX.writeFile(wb, `CONSOLIDADO_${new Date().toISOString().split('T')[0]}.xlsx`);
+        }
+
+        // Bank Template Upload
+        document.getElementById('bankTemplateInput').addEventListener('change', async (e) => {
+            const file = e.target.files[0];
+            if (!file) return;
+
+            document.getElementById('templateText').innerText = `✅ Plantilla Cargada: ${file.name}`;
+            document.getElementById('btnBank').disabled = false;
+
+            const buff = await file.arrayBuffer();
+            bankTemplateWorkbook = XLSX.read(buff, { type: 'array' });
+        });
+
+        // Strip Accents
+        function normalizarTexto(txt) {
+            return String(txt).normalize("NFD").replace(/[\u0300-\u036f]/g, "").toUpperCase().trim();
+        }
+
+        function downloadBankFile() {
+            if (!bankTemplateWorkbook || processedData.length === 0) return;
+
+            // Clone template roughly by modifying data arrays
+            const sheetName = bankTemplateWorkbook.SheetNames[0];
+            const ws = bankTemplateWorkbook.Sheets[sheetName];
+            const rawData = XLSX.utils.sheet_to_json(ws, { header: 1, defval: "" });
+
+            // Assuming header row is at index 2 (row 3) like in python script `header=2`
+            const headerRowIdx = Object.values(rawData).findIndex(arr => arr.includes("Nombre Beneficiario"));
+            let matchColIdx = -1;
+            let valColIdx = -1;
+            let dateColIdx = -1;
+
+            if (headerRowIdx !== -1) {
+                matchColIdx = rawData[headerRowIdx].indexOf("Nombre Beneficiario");
+                valColIdx = rawData[headerRowIdx].indexOf("ValorTransaccion");
+                dateColIdx = rawData[headerRowIdx].indexOf("Fecha de aplicación");
+            }
+
+            const unFound = [];
+            let totalFound = 0;
+
+            // Find matches
+            const wbOut = XLSX.utils.book_new();
+
+            if (headerRowIdx !== -1 && matchColIdx !== -1) {
+                // We map data to existing rows
+                processedData.forEach(p => {
+                    const normExec = normalizarTexto(p.ejecutivo);
+                    let bestMatchIdx = -1;
+
+                    // Simple strict inclusion matching based on python script logic roughly
+                    for (let r = headerRowIdx + 1; r < rawData.length; r++) {
+                        const bankName = normalizarTexto(rawData[r][matchColIdx] || "");
+                        if (bankName && (bankName.includes(normExec) || normExec.includes(bankName))) {
+                            bestMatchIdx = r;
+                            break;
+                        }
+                    }
+
+                    if (bestMatchIdx !== -1) {
+                        if (valColIdx !== -1) rawData[bestMatchIdx][valColIdx] = p.total_a_pagar;
+                        if (dateColIdx !== -1) rawData[bestMatchIdx][dateColIdx] = new Date().toISOString().split('T')[0].replace(/-/g, '');
+                        totalFound++;
+                    } else {
+                        unFound.push([p.ejecutivo, p.total_a_pagar]);
+                    }
+                });
+            }
+
+            const newWs = XLSX.utils.aoa_to_sheet(rawData);
+            XLSX.utils.book_append_sheet(wbOut, newWs, "FORMATO BANCO");
+
+            // Not Found Summary
+            if (unFound.length > 0) {
+                const ufData = [["Ejecutivos No Encontrados en Plantilla", "", ""], ["Ejecutivo", "Total"], ...unFound];
+                const ufWs = XLSX.utils.aoa_to_sheet(ufData);
+                XLSX.utils.book_append_sheet(wbOut, ufWs, "NO ENCONTRADOS");
+                alert(`Precaución: ${unFound.length} ejecutivos no se encontraron en la plantilla y no se añadieron al formato.`);
+            }
+
+            XLSX.writeFile(wbOut, `CONSOLIDADO_BANCO_${new Date().toISOString().split('T')[0]}.xlsx`);
+        }
+
+    </script>
+</body>
+
+</html>
