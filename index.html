@@ -61,7 +61,6 @@
             gap: 2rem;
         }
 
-        /* Sidebar */
         .sidebar {
             background: var(--bg-panel);
             backdrop-filter: blur(20px);
@@ -222,7 +221,6 @@
             transform: none;
         }
 
-        /* Main Content */
         .main-content {
             display: flex;
             flex-direction: column;
@@ -314,7 +312,6 @@
             color: var(--accent);
         }
 
-        /* Uploader Area */
         .upload-section {
             background: var(--bg-panel);
             border: 1px dashed var(--border-color);
@@ -359,7 +356,6 @@
             font-size: 0.9rem;
         }
 
-        /* File List */
         .file-list {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
@@ -423,7 +419,6 @@
             background: rgba(255, 71, 87, 0.1);
         }
 
-        /* Action Bar */
         .action-bar {
             display: flex;
             gap: 1rem;
@@ -431,7 +426,6 @@
             justify-content: flex-end;
         }
 
-        /* Results / Download Section */
         .results-section {
             display: none;
             background: var(--bg-panel);
@@ -493,7 +487,6 @@
             display: block;
         }
 
-        /* Processing Overlay */
         .overlay {
             position: fixed;
             top: 0;
@@ -548,81 +541,6 @@
             background: var(--accent);
             width: 0%;
             transition: width 0.2s ease;
-        }
-
-        .download-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-            gap: 1rem;
-        }
-
-        .download-card {
-            background: var(--bg-main);
-            border: 1px solid var(--border-color);
-            border-radius: 12px;
-            padding: 1.5rem;
-            text-align: center;
-            transition: all 0.3s ease;
-            cursor: pointer;
-        }
-
-        .download-card:hover {
-            border-color: var(--accent);
-            background: rgba(0, 240, 255, 0.05);
-            transform: translateY(-5px);
-        }
-
-        .download-card svg {
-            width: 40px;
-            height: 40px;
-            fill: var(--accent);
-            margin-bottom: 1rem;
-        }
-
-        /* Animations */
-        @keyframes fadeIn {
-            from {
-                opacity: 0;
-            }
-
-            to {
-                opacity: 1;
-            }
-        }
-
-        @keyframes slideUp {
-            from {
-                opacity: 0;
-                transform: translateY(20px);
-            }
-
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        @keyframes spin {
-            to {
-                transform: rotate(360deg);
-            }
-        }
-
-        ::-webkit-scrollbar {
-            width: 8px;
-        }
-
-        ::-webkit-scrollbar-track {
-            background: var(--bg-main);
-        }
-
-        ::-webkit-scrollbar-thumb {
-            background: rgba(255, 255, 255, 0.2);
-            border-radius: 4px;
-        }
-
-        ::-webkit-scrollbar-thumb:hover {
-            background: var(--accent);
         }
 
         .template-section {
@@ -692,12 +610,55 @@
                 position: static;
             }
         }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+
+            to {
+                opacity: 1;
+            }
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--bg-main);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--accent);
+        }
     </style>
 </head>
 
 <body>
-
-    <!-- Overlay Loader -->
     <div class="overlay" id="loadingOverlay">
         <div class="spinner"></div>
         <div class="overlay-text" id="loadingText">Procesando...</div>
@@ -707,7 +668,6 @@
     </div>
 
     <div class="container">
-        <!-- Sidebar Configuration -->
         <aside class="sidebar">
             <div class="brand">
                 <div class="brand-logo">◬ <span>Liquidador Pro</span></div>
@@ -751,14 +711,12 @@
                 <button class="btn" id="btnRestart" onclick="resetApp()">🗑️ Reiniciar Jornada</button>
                 <div style="margin-top: 1rem; font-size: 0.75rem; color: var(--text-muted); text-align: center;">
                     <span id="currentDate"></span><br>
-                    Versión: Client-Side Browser | v3.0
+                    Versión: Client-Side Browser | v3.1
                 </div>
             </div>
         </aside>
 
-        <!-- Main Content Area -->
         <main class="main-content">
-
             <div class="header-card">
                 <h1>Sistema de Control de <span>Comisiones</span></h1>
                 <p>Gestión automatizada de facturación y pagos, con tecnología client-side.</p>
@@ -783,7 +741,6 @@
                 </div>
             </div>
 
-            <!-- Upload Area -->
             <div class="upload-section" id="dropZone">
                 <input type="file" id="fileInput" multiple accept=".xml">
                 <div class="upload-icon">⚡</div>
@@ -802,7 +759,6 @@
                 </div>
             </div>
 
-            <!-- Results Center -->
             <div class="results-section" id="resultsSection">
                 <h2>📥 Centro de Descargas y Resultados</h2>
                 <div class="tabs" style="margin-top: 1.5rem;">
@@ -811,7 +767,6 @@
                     <div class="tab" onclick="switchTab(3)">🏦 Archivo Banco</div>
                 </div>
 
-                <!-- Tab 1: Individual -->
                 <div class="tab-content active" id="tab1">
                     <div
                         style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
@@ -820,7 +775,6 @@
                         <button class="btn primary" style="width: auto;" onclick="downloadZip()">📦 Descargar Todas
                             (ZIP)</button>
                     </div>
-
                     <div class="result-table-wrapper">
                         <table>
                             <thead>
@@ -831,14 +785,11 @@
                                     <th style="text-align: right;">Total a Pagar</th>
                                 </tr>
                             </thead>
-                            <tbody id="resultsTableBody">
-                                <!-- Populated dynamically -->
-                            </tbody>
+                            <tbody id="resultsTableBody"></tbody>
                         </table>
                     </div>
                 </div>
 
-                <!-- Tab 2: Consolidado -->
                 <div class="tab-content" id="tab2">
                     <p style="color: var(--text-muted); margin-bottom: 1.5rem;">Este reporte resume todas las
                         liquidaciones procesadas en un solo archivo Excel, con una hoja de resumen general.</p>
@@ -846,11 +797,9 @@
                         Consolidado General</button>
                 </div>
 
-                <!-- Tab 3: Archivo Banco -->
                 <div class="tab-content" id="tab3">
                     <p style="color: var(--text-muted); margin-bottom: 1rem;">Genera el archivo de dispersión bancaria
                         usando el consolidado como fuente.</p>
-
                     <div class="template-section">
                         <input type="file" id="bankTemplateInput" accept=".xlsx,.xls">
                         <div style="text-align: center;">
@@ -860,22 +809,18 @@
                                 plantilla. Requerida para generar el archivo.</p>
                         </div>
                     </div>
-
                     <button class="btn primary" style="width: 300px;" id="btnBank" onclick="downloadBankFile()"
                         disabled>🏦 Generar Archivo Banco</button>
                 </div>
             </div>
-
         </main>
     </div>
 
-    <!-- Core Application Logic -->
     <script>
         // State
         let selectedFiles = [];
         let processedData = [];
         let errors = [];
-        let bankTemplateFile = null;
         let bankTemplateWorkbook = null;
 
         // UI Initialization
@@ -932,7 +877,6 @@
             if (selectedFiles.length > 0) {
                 container.classList.remove('hide');
                 count.innerText = selectedFiles.length;
-
                 list.innerHTML = selectedFiles.map((f, i) => `
                     <div class="file-card">
                         <div class="file-info">
@@ -945,7 +889,6 @@
                         <button class="file-remove" onclick="removeFile(${i})">✕</button>
                     </div>
                 `).join('');
-
                 document.getElementById('btnProcess').innerText = `🚀 Procesar Archivos (${selectedFiles.length})`;
             } else {
                 container.classList.add('hide');
@@ -974,15 +917,12 @@
 
         function updateMetrics() {
             document.getElementById('valProcessed').innerText = processedData.length;
-
             const total = processedData.reduce((sum, item) => sum + item.total_a_pagar, 0);
-            document.getElementById('valTotal').innerText = '$' + total.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-
+            document.getElementById('valTotal').innerText = '$' + total.toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 });
             document.getElementById('valErrors').innerText = errors.length;
             document.getElementById('valStatus').innerText = processedData.length > 0 ? "✅" : "⏳";
         }
 
-        // XML Processing Logic
         function parseNumeric(val) {
             if (!val) return 0;
             let s = String(val).trim().replace('$', '').replace(/ /g, '').replace(/\xa0/g, '');
@@ -1008,12 +948,8 @@
 
             overlay.classList.add('active');
 
-            // We append instead of wiping out 'processedData' to allow consolidating across profiles
-            // But we first avoid duplicating identical files from previous runs
             const oldNames = processedData.map(p => p.fileName);
             const filesToProcess = selectedFiles.filter(f => !oldNames.includes(f.name));
-
-            // Note: 'errors' array clears for each fresh process run instance 
             errors = [];
 
             if (filesToProcess.length === 0) {
@@ -1031,11 +967,9 @@
 
                 try {
                     const text = await file.text();
-                    // Fall back to text/html to parse XML more flexibly, similarly to BeautifulSoup.
                     const doc = parser.parseFromString(text, "text/html");
-
-                    // Allow nodes like 'Row' or 'ss:Row'
                     const allRows = Array.from(doc.getElementsByTagName('*')).filter(el => el.nodeName.toLowerCase().endsWith('row'));
+
                     if (allRows.length < 2) throw new Error("XML sin datos suficientes o formato no soportado");
 
                     let n_liq = "N/A", ejecutivo = "Desconocido", fecha_liq = "";
@@ -1057,14 +991,11 @@
                             else if (c.includes("Comisiones al")) fecha_liq = c.split("al")[1]?.trim() || fecha_liq;
                         });
 
-                        if (joined.includes("Aseguradora") && startIndex === -1) {
-                            startIndex = idx;
-                        }
+                        if (joined.includes("Aseguradora") && startIndex === -1) startIndex = idx;
                     });
 
                     if (startIndex === -1) throw new Error("No se encontró la cabecera de datos (Aseguradora)");
 
-                    // Read Data Headers
                     const headers = extractText(allRows[startIndex]).slice(0, 13);
                     const tableData = [];
 
@@ -1073,7 +1004,6 @@
                         if (cells.length > 0) tableData.push(cells.slice(0, 13));
                     }
 
-                    // Cleaning Data, finding commissions
                     let total_comision = 0;
                     const cleanTableData = [];
 
@@ -1106,12 +1036,12 @@
                         headers: headers.slice(0, 13),
                         rows: cleanTableData,
                         isJuridico: isJuridico,
-                        total_comision: total_comision,
+                        total_comision: Math.round(total_comision),
                         retencion_pct: isJuridico ? retPct * 100 : 0,
-                        retencion_val: retencion_val,
+                        retencion_val: Math.round(retencion_val),
                         iva_pct: isJuridico ? ivaPct * 100 : 0,
-                        iva_val: iva_val,
-                        total_a_pagar: total_a_pagar
+                        iva_val: Math.round(iva_val),
+                        total_a_pagar: Math.round(total_a_pagar)
                     });
 
                 } catch (err) {
@@ -1119,27 +1049,19 @@
                 }
             }
 
-            // Post-process UI updates
             updateMetrics();
 
             if (processedData.length > 0) {
                 document.getElementById('resultsSection').classList.add('active');
-
                 const tbody = document.getElementById('resultsTableBody');
                 tbody.innerHTML = processedData.map(p => `
                     <tr>
                         <td style="font-weight: 500;">${p.ejecutivo}</td>
                         <td style="color: var(--text-muted); font-size: 0.9em;">${p.fileName}</td>
-                        <td style="text-align: right;">$${p.total_comision.toLocaleString('en', { minimumFractionDigits: 2 })}</td>
-                        <td style="text-align: right; color: var(--accent); font-weight:bold;">$${p.total_a_pagar.toLocaleString('en', { minimumFractionDigits: 2 })}</td>
+                        <td style="text-align: right;">$${p.total_comision.toLocaleString('en')}</td>
+                        <td style="text-align: right; color: var(--accent); font-weight:bold;">$${p.total_a_pagar.toLocaleString('en')}</td>
                     </tr>
                 `).join('');
-
-                // Files remain in the list so users can switch profiles and consolidate.
-                // Re-processing clears processedData from memory only initially, 
-                // but the UI won't delete the physical list selection.
-                // We disabled automatic success cleanup as requested.
-                // updateFileList();
             }
 
             if (errors.length > 0) {
@@ -1148,62 +1070,21 @@
                 console.warn(errors);
             }
 
-            setTimeout(() => {
-                overlay.classList.remove('active');
-            }, 500);
+            setTimeout(() => overlay.classList.remove('active'), 500);
         }
 
-        // Tab Switching
         function switchTab(num) {
             document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
             document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
-
             document.querySelectorAll('.tab')[num - 1].classList.add('active');
             document.getElementById(`tab${num}`).classList.add('active');
         }
 
-        // Generate Excel Workbooks for Individual Liquidations
+        // Generate Excel Workbooks for Individual Liquidations - NÚMEROS ENTEROS SIN DECIMALES
         function generateIndividualWorkbook(data) {
             const wb = XLSX.utils.book_new();
-            const wsData = [];
+            const ws = {};
 
-            wsData.push([data.n_liq]);
-            wsData.push(["Ejecutivo: " + data.ejecutivo.toUpperCase()]);
-            wsData.push(["Descripción: LIQUIDACION DE COMISIONES AL " + data.fecha_liq]);
-            wsData.push(["Fecha de generación:", new Date().toLocaleString()]);
-            wsData.push([]); // Empty row 5
-
-            // row 6 headers
-            wsData.push(data.headers);
-
-            data.rows.forEach(r => {
-                wsData.push(r.row.slice(0, 13));
-            });
-
-            // Totals
-            wsData.push([]);
-            const emptyPad = Array(Math.max(0, data.headers.length - 2)).fill("");
-
-            if (!data.isJuridico) {
-                wsData.push([...emptyPad, "TOTAL LIQUIDACIÓN", data.total_comision]);
-            } else {
-                wsData.push([...emptyPad, "TOTAL COMISIONES", data.total_comision]);
-                wsData.push([]);
-                wsData.push([]);
-
-                const fPad = Array(5).fill("");
-                wsData.push([...fPad, "DETALLE DE FACTURACIÓN"]);
-                wsData.push([...fPad, "FECHA DE FACTURA", new Date().toLocaleDateString()]);
-                wsData.push([...fPad, "TOTAL COMISIONES", data.total_comision]);
-                wsData.push([...fPad, `RETENCIÓN EN LA FUENTE (${data.retencion_pct}%)`, Math.round(data.retencion_val)]);
-                wsData.push([...fPad, `IVA GENERADO (${data.iva_pct}%)`, Math.round(data.iva_val)]);
-                wsData.push([...fPad, "TOTAL A PAGAR", data.total_a_pagar]);
-            }
-
-            // Apply some basic structure and number formatting for Excel without many zeros
-            const ws = XLSX.utils.aoa_to_sheet(wsData);
-
-            // Standardizing cell borders and alignments
             const borderStyle = {
                 top: { style: "thin", color: { rgb: "000000" } },
                 bottom: { style: "thin", color: { rgb: "000000" } },
@@ -1224,85 +1105,135 @@
                 border: borderStyle
             };
 
-            // Style application
-            const range = XLSX.utils.decode_range(ws['!ref']);
-            for (let R = range.s.r; R <= range.e.r; ++R) {
-                for (let C = range.s.c; C <= range.e.c; ++C) {
-                    const cell_address = { c: C, r: R };
-                    const cell_ref = XLSX.utils.encode_cell(cell_address);
-                    if (!ws[cell_ref]) continue;
+            const noBorderStyle = {
+                top: { style: "none" }, bottom: { style: "none" },
+                left: { style: "none" }, right: { style: "none" }
+            };
 
-                    // Base format mapping
-                    if (!ws[cell_ref].s) ws[cell_ref].s = {};
-
-                    // Row 0-2: Titles
-                    if (R === 0 && C === 0) ws[cell_ref].s = { font: { bold: true, sz: 14, color: { rgb: "1F4E78" } } };
-                    if (R === 1 && C === 0) ws[cell_ref].s = { font: { bold: true, sz: 12 } };
-                    if (R === 2 && C === 0) ws[cell_ref].s = { font: { italic: true } };
-                    if (R === 3 && C === 0) ws[cell_ref].s = { font: { bold: true } };
-
-                    // Row 5: Headers
-                    if (R === 5) {
-                        ws[cell_ref].s = headerStyle;
-                    }
-
-                    // Data Rows (R >= 6) and formatting
-                    if (R >= 6) {
-                        ws[cell_ref].s.border = borderStyle;
-                        ws[cell_ref].s.alignment = { vertical: 'center' };
-                    }
-
-                    // Number format: drop trailing zero decimal, add comma
-                    if (ws[cell_ref].t === 'n') {
-                        ws[cell_ref].z = '#,##0.##';
-                        if (R >= 6) ws[cell_ref].s.alignment = { horizontal: 'right', vertical: 'center' };
-                    }
-
-                    // Highlight totals depending on string contents
-                    if (ws[cell_ref].v === "TOTAL LIQUIDACIÓN" || ws[cell_ref].v === "TOTAL COMISIONES" || ws[cell_ref].v === "FECHA DE FACTURA") {
-                        ws[cell_ref].s = totalStyle;
-                        // highlight the value cell next to it
-                        const next_cell = XLSX.utils.encode_cell({ c: C + 1, r: R });
-                        if (ws[next_cell]) { ws[next_cell].s = totalStyle; ws[next_cell].z = '#,##0.##'; }
-                    }
-
-                    if (ws[cell_ref].v === "DETALLE DE FACTURACIÓN" || ws[cell_ref].v === "TOTAL A PAGAR") {
-                        ws[cell_ref].s = { font: { bold: true, sz: 12, color: { rgb: "1F4E78" } }, border: borderStyle, alignment: { horizontal: 'left' } };
-                        const next_cell = XLSX.utils.encode_cell({ c: C + 1, r: R });
-                        if (ws[next_cell]) { ws[next_cell].s = { ...ws[cell_ref].s, alignment: { horizontal: 'right' } }; ws[next_cell].z = '#,##0.##'; }
-                    }
-                }
-            }
-
-            // Remove borders from the fPad (columns 0-4) on Juridico detail rows
-            // so they don't render as blank bordered cells.
-            if (data.isJuridico) {
-                const detailLabels = [
-                    "DETALLE DE FACTURACIÓN", "FECHA DE FACTURA",
-                    "TOTAL COMISIONES", `RETENCIÓN EN LA FUENTE (${data.retencion_pct}%)`,
-                    `IVA GENERADO (${data.iva_pct}%)`, "TOTAL A PAGAR"
-                ];
-                const noBorderStyle = {
-                    top: { style: "none" }, bottom: { style: "none" },
-                    left: { style: "none" }, right: { style: "none" }
+            // Función para escribir celda numérica entera
+            function writeIntCell(r, c, value, style = null) {
+                const cell_ref = XLSX.utils.encode_cell({ r, c });
+                ws[cell_ref] = {
+                    v: Math.round(value),
+                    t: 'n',
+                    z: '0'  // Formato número entero sin separadores
                 };
-                for (let R = range.s.r; R <= range.e.r; ++R) {
-                    const labelCell = XLSX.utils.encode_cell({ c: 5, r: R });
-                    if (ws[labelCell] && detailLabels.includes(ws[labelCell].v)) {
-                        for (let C = 0; C < 5; C++) {
-                            const padRef = XLSX.utils.encode_cell({ c: C, r: R });
-                            ws[padRef] = { v: "", t: "s", s: { border: noBorderStyle } };
-                        }
-                    }
-                }
+                if (style) ws[cell_ref].s = style;
+                return cell_ref;
             }
 
-            // Apply column widths
-            const colWidths = [];
-            for (let i = 0; i < data.headers.length; i++) {
-                colWidths.push({ wch: Math.max(15, data.headers[i].length + 2) });
+            // Función para escribir celda de texto
+            function writeStrCell(r, c, value, style = null) {
+                const cell_ref = XLSX.utils.encode_cell({ r, c });
+                ws[cell_ref] = { v: String(value), t: 's' };
+                if (style) ws[cell_ref].s = style;
+                return cell_ref;
             }
-            ws['!cols'] = colWidths;
+
+            let currentRow = 0;
+
+            // Encabezados
+            writeStrCell(currentRow, 0, data.n_liq, { font: { bold: true, sz: 14, color: { rgb: "1F4E78" } } });
+            currentRow++;
+            writeStrCell(currentRow, 0, "Ejecutivo: " + data.ejecutivo.toUpperCase(), { font: { bold: true, sz: 12 } });
+            currentRow++;
+            writeStrCell(currentRow, 0, "Descripción: LIQUIDACION DE COMISIONES AL " + data.fecha_liq, { font: { italic: true } });
+            currentRow++;
+            writeStrCell(currentRow, 0, "Fecha de generación:", { font: { bold: true } });
+            writeStrCell(currentRow, 1, new Date().toLocaleString());
+            currentRow++;
+            currentRow++; // Empty row
+
+            // Headers de columnas
+            data.headers.forEach((h, c) => {
+                writeStrCell(currentRow, c, h, headerStyle);
+            });
+            currentRow++;
+
+            // Filas de datos - NÚMEROS ENTEROS
+            const numericColumns = [7, 9, 11, 12]; // Prima_Sin_IVA, Comi_Gene_Agencia, Comi_Gene_Ejecutivo, Comi_Pagada_Ejecutivo
+
+            data.rows.forEach(r => {
+                r.row.slice(0, 13).forEach((val, c) => {
+                    if (numericColumns.includes(c)) {
+                        const numVal = parseNumeric(val);
+                        writeIntCell(currentRow, c, numVal, {
+                            border: borderStyle,
+                            alignment: { vertical: 'center', horizontal: 'right' }
+                        });
+                    } else {
+                        writeStrCell(currentRow, c, val, {
+                            border: borderStyle,
+                            alignment: { vertical: 'center' }
+                        });
+                    }
+                });
+                currentRow++;
+            });
+
+            currentRow++; // Empty row
+
+            // Totales
+            const emptyPad = Math.max(0, data.headers.length - 2);
+
+            if (!data.isJuridico) {
+                writeStrCell(currentRow, emptyPad, "TOTAL LIQUIDACIÓN", totalStyle);
+                writeIntCell(currentRow, emptyPad + 1, data.total_comision, totalStyle);
+            } else {
+                writeStrCell(currentRow, emptyPad, "TOTAL COMISIONES", totalStyle);
+                writeIntCell(currentRow, emptyPad + 1, data.total_comision, totalStyle);
+                currentRow += 3;
+
+                const fPad = 5;
+
+                // DETALLE DE FACTURACIÓN
+                writeStrCell(currentRow, fPad, "DETALLE DE FACTURACIÓN", {
+                    font: { bold: true, sz: 12, color: { rgb: "1F4E78" } },
+                    border: borderStyle,
+                    alignment: { horizontal: 'left' }
+                });
+                for (let c = 0; c < fPad; c++) writeStrCell(currentRow, c, "", { border: noBorderStyle });
+                currentRow++;
+
+                writeStrCell(currentRow, fPad, "FECHA DE FACTURA", totalStyle);
+                writeStrCell(currentRow, fPad + 1, new Date().toLocaleDateString(), { ...totalStyle, alignment: { horizontal: 'right' } });
+                for (let c = 0; c < fPad; c++) writeStrCell(currentRow, c, "", { border: noBorderStyle });
+                currentRow++;
+
+                writeStrCell(currentRow, fPad, "TOTAL COMISIONES", { border: borderStyle, alignment: { horizontal: 'left' } });
+                writeIntCell(currentRow, fPad + 1, data.total_comision, { border: borderStyle, alignment: { horizontal: 'right' } });
+                for (let c = 0; c < fPad; c++) writeStrCell(currentRow, c, "", { border: noBorderStyle });
+                currentRow++;
+
+                writeStrCell(currentRow, fPad, `RETENCIÓN EN LA FUENTE (${data.retencion_pct}%)`, { border: borderStyle, alignment: { horizontal: 'left' } });
+                writeIntCell(currentRow, fPad + 1, data.retencion_val, { border: borderStyle, alignment: { horizontal: 'right' } });
+                for (let c = 0; c < fPad; c++) writeStrCell(currentRow, c, "", { border: noBorderStyle });
+                currentRow++;
+
+                writeStrCell(currentRow, fPad, `IVA GENERADO (${data.iva_pct}%)`, { border: borderStyle, alignment: { horizontal: 'left' } });
+                writeIntCell(currentRow, fPad + 1, data.iva_val, { border: borderStyle, alignment: { horizontal: 'right' } });
+                for (let c = 0; c < fPad; c++) writeStrCell(currentRow, c, "", { border: noBorderStyle });
+                currentRow++;
+
+                writeStrCell(currentRow, fPad, "TOTAL A PAGAR", {
+                    font: { bold: true, sz: 12, color: { rgb: "1F4E78" } },
+                    border: borderStyle,
+                    alignment: { horizontal: 'left' }
+                });
+                writeIntCell(currentRow, fPad + 1, data.total_a_pagar, {
+                    font: { bold: true, sz: 12, color: { rgb: "1F4E78" } },
+                    border: borderStyle,
+                    alignment: { horizontal: 'right' }
+                });
+                for (let c = 0; c < fPad; c++) writeStrCell(currentRow, c, "", { border: noBorderStyle });
+            }
+
+            // Definir rango
+            const range = { s: { r: 0, c: 0 }, e: { r: currentRow, c: data.headers.length - 1 } };
+            ws['!ref'] = XLSX.utils.encode_range(range);
+
+            // Anchos de columna
+            ws['!cols'] = data.headers.map(h => ({ wch: Math.max(15, h.length + 2) }));
 
             XLSX.utils.book_append_sheet(wb, ws, "Liquidacion");
             return wb;
@@ -1315,7 +1246,6 @@
             processedData.forEach((d, i) => {
                 const wb = generateIndividualWorkbook(d);
                 const wbout = XLSX.write(wb, { bookType: 'xlsx', type: 'array' });
-                // ensure unique names
                 zip.file(`${i + 1}_${d.safeName}`, wbout);
             });
 
@@ -1327,7 +1257,6 @@
             if (processedData.length === 0) return;
             const wb = XLSX.utils.book_new();
 
-            // Sheet 1: General Summary
             const sumData = [
                 ["CONSOLIDADO GENERAL DE PAGOS"],
                 [`Fecha: ${new Date().toLocaleString()}`],
@@ -1344,10 +1273,8 @@
             sumData.push([]);
             sumData.push(["GRAN TOTAL A DISPERSAR:", granTotal]);
 
-
             const ws = XLSX.utils.aoa_to_sheet(sumData);
 
-            // Apply Styles to Consolidated sheet
             const borderStyle = {
                 top: { style: "thin", color: { rgb: "000000" } },
                 bottom: { style: "thin", color: { rgb: "000000" } },
@@ -1365,43 +1292,43 @@
             const range = XLSX.utils.decode_range(ws['!ref']);
             for (let R = range.s.r; R <= range.e.r; ++R) {
                 for (let C = range.s.c; C <= range.e.c; ++C) {
-                    const cell_address = { c: C, r: R };
-                    const cell_ref = XLSX.utils.encode_cell(cell_address);
+                    const cell_ref = XLSX.utils.encode_cell({ c: C, r: R });
                     if (!ws[cell_ref]) continue;
                     if (!ws[cell_ref].s) ws[cell_ref].s = {};
 
-                    // Titles
                     if (R === 0 && C === 0) ws[cell_ref].s = { font: { bold: true, sz: 14, color: { rgb: "1F4E78" } } };
                     if (R === 1 && C === 0) ws[cell_ref].s = { font: { italic: true } };
-
-                    // Headers
                     if (R === 3) ws[cell_ref].s = headerStyle;
 
-                    // Data Rows
                     if (R >= 4 && ws[cell_ref].v !== "GRAN TOTAL A DISPERSAR:" && R !== range.e.r) {
                         ws[cell_ref].s.border = borderStyle;
                         ws[cell_ref].s.alignment = { vertical: 'center' };
                     }
 
-                    // Numbers
+                    // NÚMEROS ENTEROS SIN FORMATO ESPECIAL
                     if (ws[cell_ref].t === 'n') {
-                        ws[cell_ref].z = '#,##0.##';
-                        if (R >= 4) ws[cell_ref].s.alignment = { horizontal: 'right', vertical: 'center' };
+                        ws[cell_ref].z = '0';  // Formato entero sin separadores
+                        ws[cell_ref].s.alignment = { horizontal: 'right', vertical: 'center' };
                     }
 
-                    // Grand Total
                     if (ws[cell_ref].v === "GRAN TOTAL A DISPERSAR:") {
-                        ws[cell_ref].s = { font: { bold: true, sz: 12 }, fill: { fgColor: { rgb: "FFFF00" } }, border: borderStyle, alignment: { horizontal: 'right' } };
+                        ws[cell_ref].s = {
+                            font: { bold: true, sz: 12 },
+                            fill: { fgColor: { rgb: "FFFF00" } },
+                            border: borderStyle,
+                            alignment: { horizontal: 'right' }
+                        };
                         const next_cell = XLSX.utils.encode_cell({ c: C + 1, r: R });
-                        if (ws[next_cell]) { ws[next_cell].s = { font: { bold: true, sz: 12 }, fill: { fgColor: { rgb: "FFFF00" } }, border: borderStyle }; ws[next_cell].z = '#,##0.##'; }
+                        if (ws[next_cell]) {
+                            ws[next_cell].s = { font: { bold: true, sz: 12 }, fill: { fgColor: { rgb: "FFFF00" } }, border: borderStyle };
+                            ws[next_cell].z = '0';  // Formato entero
+                        }
                     }
                 }
             }
 
             ws['!cols'] = [{ wch: 35 }, { wch: 20 }, { wch: 15 }, { wch: 40 }];
             XLSX.utils.book_append_sheet(wb, ws, "RESUMEN GENERAL");
-
-            // Download
             XLSX.writeFile(wb, `CONSOLIDADO_${new Date().toISOString().split('T')[0]}.xlsx`);
         }
 
@@ -1417,7 +1344,6 @@
             bankTemplateWorkbook = XLSX.read(buff, { type: 'array' });
         });
 
-        // Strip Accents
         function normalizarTexto(txt) {
             return String(txt).normalize("NFD").replace(/[\u0300-\u036f]/g, "").toUpperCase().trim();
         }
@@ -1425,12 +1351,10 @@
         function downloadBankFile() {
             if (!bankTemplateWorkbook || processedData.length === 0) return;
 
-            // Clone template roughly by modifying data arrays
             const sheetName = bankTemplateWorkbook.SheetNames[0];
             const ws = bankTemplateWorkbook.Sheets[sheetName];
             const rawData = XLSX.utils.sheet_to_json(ws, { header: 1, defval: "" });
 
-            // Assuming header row is at index 2 (row 3) like in python script `header=2`
             const headerRowIdx = Object.values(rawData).findIndex(arr => arr.includes("Nombre Beneficiario"));
             let matchColIdx = -1;
             let valColIdx = -1;
@@ -1443,18 +1367,13 @@
             }
 
             const unFound = [];
-            let totalFound = 0;
-
-            // Find matches
             const wbOut = XLSX.utils.book_new();
 
             if (headerRowIdx !== -1 && matchColIdx !== -1) {
-                // We map data to existing rows
                 processedData.forEach(p => {
                     const normExec = normalizarTexto(p.ejecutivo);
                     let bestMatchIdx = -1;
 
-                    // Simple strict inclusion matching based on python script logic roughly
                     for (let r = headerRowIdx + 1; r < rawData.length; r++) {
                         const bankName = normalizarTexto(rawData[r][matchColIdx] || "");
                         if (bankName && (bankName.includes(normExec) || normExec.includes(bankName))) {
@@ -1466,7 +1385,6 @@
                     if (bestMatchIdx !== -1) {
                         if (valColIdx !== -1) rawData[bestMatchIdx][valColIdx] = p.total_a_pagar;
                         if (dateColIdx !== -1) rawData[bestMatchIdx][dateColIdx] = new Date().toISOString().split('T')[0].replace(/-/g, '');
-                        totalFound++;
                     } else {
                         unFound.push([p.ejecutivo, p.total_a_pagar]);
                     }
@@ -1476,7 +1394,6 @@
             const newWs = XLSX.utils.aoa_to_sheet(rawData);
             XLSX.utils.book_append_sheet(wbOut, newWs, "FORMATO BANCO");
 
-            // Not Found Summary
             if (unFound.length > 0) {
                 const ufData = [["Ejecutivos No Encontrados en Plantilla", "", ""], ["Ejecutivo", "Total"], ...unFound];
                 const ufWs = XLSX.utils.aoa_to_sheet(ufData);
@@ -1486,7 +1403,6 @@
 
             XLSX.writeFile(wbOut, `CONSOLIDADO_BANCO_${new Date().toISOString().split('T')[0]}.xlsx`);
         }
-
     </script>
 </body>
 
