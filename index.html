@@ -24,6 +24,7 @@
             --accent-hover: #00d0ff;
             --danger: #ff4757;
             --success: #2ed573;
+            --warning: #ffa502;
         }
 
         * {
@@ -213,6 +214,18 @@
             background: var(--accent);
             color: var(--bg-main);
             box-shadow: 0 0 20px rgba(0, 240, 255, 0.4);
+        }
+
+        .btn.warning {
+            background: rgba(255, 165, 2, 0.1);
+            border-color: var(--warning);
+            color: var(--warning);
+        }
+
+        .btn.warning:hover:not(:disabled) {
+            background: var(--warning);
+            color: var(--bg-main);
+            box-shadow: 0 0 20px rgba(255, 165, 2, 0.4);
         }
 
         .btn:disabled {
@@ -600,6 +613,74 @@
             border-bottom: none;
         }
 
+        /* Estilos para la sección de AgenteMotor */
+        .agente-section {
+            background: rgba(255, 165, 2, 0.05);
+            border: 1px dashed var(--warning);
+            border-radius: 16px;
+            padding: 2rem;
+            margin-top: 2rem;
+            position: relative;
+        }
+
+        .agente-section h3 {
+            color: var(--warning);
+            font-family: 'Space Grotesk', sans-serif;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .agente-status {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem 1rem;
+            background: rgba(46, 213, 115, 0.1);
+            border: 1px solid var(--success);
+            border-radius: 20px;
+            color: var(--success);
+            font-size: 0.85rem;
+            margin-top: 1rem;
+        }
+
+        .agente-status.pending {
+            background: rgba(255, 165, 2, 0.1);
+            border-color: var(--warning);
+            color: var(--warning);
+        }
+
+        .agente-summary {
+            background: var(--bg-panel);
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-top: 1.5rem;
+            border: 1px solid var(--border-color);
+        }
+
+        .agente-summary h4 {
+            color: var(--accent);
+            margin-bottom: 1rem;
+            font-size: 1rem;
+        }
+
+        .agente-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.8rem;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .agente-item:last-child {
+            border-bottom: none;
+        }
+
+        .agente-item strong {
+            color: var(--warning);
+        }
+
         @media (max-width: 1024px) {
             .container {
                 grid-template-columns: 1fr;
@@ -704,6 +785,17 @@
                 </p>
             </div>
 
+            <div class="sidebar-section">
+                <h3>🚗 Parámetros AgenteMotor</h3>
+                <div class="input-group">
+                    <label for="valorAgenteMotor">Valor por unidad ($)</label>
+                    <input type="number" id="valorAgenteMotor" value="0" step="1000" min="0">
+                </div>
+                <p style="font-size: 0.8rem; color: var(--text-muted); margin-top: 0.5rem;">
+                    💡 Se calculará: (Conteo en archivo × Valor) y se restará del subtotal
+                </p>
+            </div>
+
             <div style="flex-grow: 1;"></div>
 
             <div class="sidebar-section">
@@ -711,7 +803,7 @@
                 <button class="btn" id="btnRestart" onclick="resetApp()">🗑️ Reiniciar Jornada</button>
                 <div style="margin-top: 1rem; font-size: 0.75rem; color: var(--text-muted); text-align: center;">
                     <span id="currentDate"></span><br>
-                    Versión: Client-Side Browser | v3.1
+                    Versión: Client-Side Browser | v3.2
                 </div>
             </div>
         </aside>
@@ -759,6 +851,42 @@
                 </div>
             </div>
 
+            <!-- Nueva sección para AgenteMotor -->
+            <div id="agenteMotorSection" class="agente-section hide">
+                <h3>🚗 Cargar Archivo AgenteMotor</h3>
+                <p style="color: var(--text-muted); margin-bottom: 1rem;">
+                    Carga el archivo Excel de AgenteMotor para calcular descuentos por unidades vendidas.
+                </p>
+
+                <div class="template-section"
+                    style="border-color: var(--warning); background: rgba(255, 165, 2, 0.05);">
+                    <input type="file" id="agenteMotorInput" accept=".xlsx,.xls">
+                    <div style="text-align: center;">
+                        <h4 style="color: var(--warning); margin-bottom: 0.5rem;" id="agenteMotorText">
+                            📁 Seleccionar archivo AgenteMotor.xlsx
+                        </h4>
+                        <p style="font-size: 0.8rem; color: var(--text-muted);">
+                            El sistema buscará la columna "Asesor" y contará las ocurrencias
+                        </p>
+                    </div>
+                </div>
+
+                <div id="agenteMotorStatus" class="agente-status pending">
+                    ⏳ Esperando archivo...
+                </div>
+
+                <div id="agenteMotorSummary" class="agente-summary hide">
+                    <h4>📊 Resumen de Descuentos AgenteMotor</h4>
+                    <div id="agenteMotorList"></div>
+                </div>
+
+                <div class="action-bar" style="justify-content: flex-start; margin-top: 1.5rem;">
+                    <button class="btn warning" id="btnRecalcular" onclick="recalcularConAgenteMotor()" disabled>
+                        🔄 Recalcular Totales con AgenteMotor
+                    </button>
+                </div>
+            </div>
+
             <div class="results-section" id="resultsSection">
                 <h2>📥 Centro de Descargas y Resultados</h2>
                 <div class="tabs" style="margin-top: 1.5rem;">
@@ -781,6 +909,8 @@
                                 <tr>
                                     <th>Ejecutivo</th>
                                     <th>Archivo Fuente</th>
+                                    <th style="text-align: right;">Subtotal</th>
+                                    <th style="text-align: right;">Desc. AgenteMotor</th>
                                     <th style="text-align: right;">Total Comisiones</th>
                                     <th style="text-align: right;">Total a Pagar</th>
                                 </tr>
@@ -822,6 +952,8 @@
         let processedData = [];
         let errors = [];
         let bankTemplateWorkbook = null;
+        let agenteMotorData = null; // Almacena los conteos por asesor
+        let agenteMotorFile = null;
 
         // UI Initialization
         document.getElementById('currentDate').innerText = `Fecha: ${new Date().toLocaleDateString()}`;
@@ -910,7 +1042,16 @@
             clearFiles();
             processedData = [];
             errors = [];
+            agenteMotorData = null;
+            agenteMotorFile = null;
             document.getElementById('resultsSection').classList.remove('active');
+            document.getElementById('agenteMotorSection').classList.add('hide');
+            document.getElementById('agenteMotorInput').value = '';
+            document.getElementById('agenteMotorText').innerText = '📁 Seleccionar archivo AgenteMotor.xlsx';
+            document.getElementById('agenteMotorStatus').innerText = '⏳ Esperando archivo...';
+            document.getElementById('agenteMotorStatus').className = 'agente-status pending';
+            document.getElementById('agenteMotorSummary').classList.add('hide');
+            document.getElementById('btnRecalcular').disabled = true;
             updateMetrics();
             alert('Jornada reiniciada exitosamente.');
         }
@@ -1017,12 +1158,20 @@
 
                     if (cleanTableData.length === 0) throw new Error("No se encontraron comisiones pagables");
 
-                    let retencion_val = 0, iva_val = 0, total_a_pagar = total_comision;
+                    // Guardar subtotal original antes de descuentos
+                    const subtotal_original = total_comision;
+
+                    // Inicializar valores de AgenteMotor (se calcularán después)
+                    let agenteMotorCount = 0;
+                    let agenteMotorDescuento = 0;
+                    let total_comision_ajustada = subtotal_original;
+
+                    let retencion_val = 0, iva_val = 0, total_a_pagar = total_comision_ajustada;
 
                     if (isJuridico) {
-                        retencion_val = total_comision * retPct;
-                        iva_val = total_comision * ivaPct;
-                        total_a_pagar = total_comision - retencion_val + iva_val;
+                        retencion_val = total_comision_ajustada * retPct;
+                        iva_val = total_comision_ajustada * ivaPct;
+                        total_a_pagar = total_comision_ajustada - retencion_val + iva_val;
                     }
 
                     const safeName = ejecutivo.replace(/[^\w\s-]/gi, '').trim().replace(/ /g, '_') || "Sin_Nombre";
@@ -1036,7 +1185,10 @@
                         headers: headers.slice(0, 13),
                         rows: cleanTableData,
                         isJuridico: isJuridico,
-                        total_comision: Math.round(total_comision),
+                        subtotal_original: Math.round(subtotal_original),
+                        agenteMotorCount: agenteMotorCount,
+                        agenteMotorDescuento: Math.round(agenteMotorDescuento),
+                        total_comision: Math.round(total_comision_ajustada),
                         retencion_pct: isJuridico ? retPct * 100 : 0,
                         retencion_val: Math.round(retencion_val),
                         iva_pct: isJuridico ? ivaPct * 100 : 0,
@@ -1053,15 +1205,8 @@
 
             if (processedData.length > 0) {
                 document.getElementById('resultsSection').classList.add('active');
-                const tbody = document.getElementById('resultsTableBody');
-                tbody.innerHTML = processedData.map(p => `
-                    <tr>
-                        <td style="font-weight: 500;">${p.ejecutivo}</td>
-                        <td style="color: var(--text-muted); font-size: 0.9em;">${p.fileName}</td>
-                        <td style="text-align: right;">$${p.total_comision.toLocaleString('en')}</td>
-                        <td style="text-align: right; color: var(--accent); font-weight:bold;">$${p.total_a_pagar.toLocaleString('en')}</td>
-                    </tr>
-                `).join('');
+                document.getElementById('agenteMotorSection').classList.remove('hide');
+                updateResultsTable();
             }
 
             if (errors.length > 0) {
@@ -1073,6 +1218,196 @@
             setTimeout(() => overlay.classList.remove('active'), 500);
         }
 
+        function updateResultsTable() {
+            const tbody = document.getElementById('resultsTableBody');
+            tbody.innerHTML = processedData.map(p => `
+                <tr>
+                    <td style="font-weight: 500;">${p.ejecutivo}</td>
+                    <td style="color: var(--text-muted); font-size: 0.9em;">${p.fileName}</td>
+                    <td style="text-align: right;">$${p.subtotal_original.toLocaleString('en')}</td>
+                    <td style="text-align: right; color: var(--warning);">
+                        ${p.agenteMotorDescuento > 0 ? `-$${p.agenteMotorDescuento.toLocaleString('en')} (${p.agenteMotorCount})` : '-'}
+                    </td>
+                    <td style="text-align: right;">$${p.total_comision.toLocaleString('en')}</td>
+                    <td style="text-align: right; color: var(--accent); font-weight:bold;">$${p.total_a_pagar.toLocaleString('en')}</td>
+                </tr>
+            `).join('');
+        }
+
+        // AgenteMotor File Upload Logic
+        document.getElementById('agenteMotorInput').addEventListener('change', async (e) => {
+            const file = e.target.files[0];
+            if (!file) return;
+
+            agenteMotorFile = file;
+            document.getElementById('agenteMotorText').innerText = `✅ Cargado: ${file.name}`;
+            document.getElementById('agenteMotorStatus').innerText = '⏳ Procesando conteos...';
+            document.getElementById('agenteMotorStatus').className = 'agente-status pending';
+
+            try {
+                const buff = await file.arrayBuffer();
+                const workbook = XLSX.read(buff, { type: 'array' });
+                const sheetName = workbook.SheetNames[0];
+                const ws = workbook.Sheets[sheetName];
+                const jsonData = XLSX.utils.sheet_to_json(ws, { header: 1, defval: "" });
+
+                // Buscar columna "Asesor"
+                let asesorColIdx = -1;
+                const headerRow = jsonData[0];
+
+                for (let i = 0; i < headerRow.length; i++) {
+                    const colName = String(headerRow[i]).trim().toLowerCase();
+                    if (colName === 'asesor' || colName.includes('asesor')) {
+                        asesorColIdx = i;
+                        break;
+                    }
+                }
+
+                if (asesorColIdx === -1) {
+                    throw new Error('No se encontró la columna "Asesor" en el archivo');
+                }
+
+                // Contar ocurrencias por asesor
+                agenteMotorData = {};
+                for (let i = 1; i < jsonData.length; i++) {
+                    const row = jsonData[i];
+                    if (row[asesorColIdx]) {
+                        const nombre = String(row[asesorColIdx]).trim();
+                        if (nombre) {
+                            agenteMotorData[nombre] = (agenteMotorData[nombre] || 0) + 1;
+                        }
+                    }
+                }
+
+                // Mostrar resumen
+                const valorUnitario = parseFloat(document.getElementById('valorAgenteMotor').value) || 0;
+                const summaryDiv = document.getElementById('agenteMotorList');
+
+                let summaryHTML = '';
+                let totalDescuento = 0;
+
+                for (const [nombre, count] of Object.entries(agenteMotorData)) {
+                    const descuento = count * valorUnitario;
+                    totalDescuento += descuento;
+                    summaryHTML += `
+                        <div class="agente-item">
+                            <span>${nombre}</span>
+                            <span><strong>${count} unidades</strong> × $${valorUnitario.toLocaleString('en')} = <strong>-$${descuento.toLocaleString('en')}</strong></span>
+                        </div>
+                    `;
+                }
+
+                summaryDiv.innerHTML = summaryHTML;
+                document.getElementById('agenteMotorSummary').classList.remove('hide');
+                document.getElementById('agenteMotorStatus').innerHTML = `✅ Archivo procesado: ${Object.keys(agenteMotorData).length} asesores encontrados`;
+                document.getElementById('agenteMotorStatus').className = 'agente-status';
+                document.getElementById('btnRecalcular').disabled = false;
+
+            } catch (err) {
+                document.getElementById('agenteMotorStatus').innerText = `❌ Error: ${err.message}`;
+                document.getElementById('agenteMotorStatus').className = 'agente-status pending';
+                agenteMotorData = null;
+                console.error(err);
+            }
+        });
+
+        function normalizarTexto(txt) {
+            return String(txt).normalize("NFD").replace(/[\u0300-\u036f]/g, "").toUpperCase().trim();
+        }
+
+        function encontrarMejorCoincidencia(nombreEjecutivo, agenteData) {
+            const normExec = normalizarTexto(nombreEjecutivo);
+            const nombresAgentes = Object.keys(agenteData);
+
+            // Primero buscar coincidencia exacta normalizada
+            for (const nombre of nombresAgentes) {
+                if (normalizarTexto(nombre) === normExec) {
+                    return nombre;
+                }
+            }
+
+            // Luego buscar si uno contiene al otro
+            for (const nombre of nombresAgentes) {
+                const normNombre = normalizarTexto(nombre);
+                if (normNombre.includes(normExec) || normExec.includes(normNombre)) {
+                    return nombre;
+                }
+            }
+
+            // Buscar coincidencia parcial por palabras
+            const palabrasExec = normExec.split(/\s+/);
+            for (const nombre of nombresAgentes) {
+                const normNombre = normalizarTexto(nombre);
+                const palabrasNombre = normNombre.split(/\s+/);
+
+                // Si comparten al menos 2 palabras o una palabra significativa (más de 3 caracteres)
+                let coincidencias = 0;
+                for (const palabra of palabrasExec) {
+                    if (palabra.length > 3 && palabrasNombre.some(p => p.includes(palabra) || palabra.includes(p))) {
+                        coincidencias++;
+                    }
+                }
+
+                if (coincidencias >= 2 || (palabrasExec.length === 1 && coincidencias === 1)) {
+                    return nombre;
+                }
+            }
+
+            return null;
+        }
+
+        function recalcularConAgenteMotor() {
+            if (!agenteMotorData || processedData.length === 0) return;
+
+            const valorUnitario = parseFloat(document.getElementById('valorAgenteMotor').value) || 0;
+            const isJuridico = document.querySelector('input[name="perfil"]:checked').value === 'Jurídico';
+            const retPct = parseFloat(document.getElementById('retencion').value) / 100 || 0;
+            const ivaPct = parseFloat(document.getElementById('iva').value) / 100 || 0;
+
+            let asesoresNoEncontrados = [];
+
+            processedData.forEach(p => {
+                // Buscar coincidencia del ejecutivo en los datos de AgenteMotor
+                const nombreCoincidencia = encontrarMejorCoincidencia(p.ejecutivo, agenteMotorData);
+
+                let count = 0;
+                if (nombreCoincidencia) {
+                    count = agenteMotorData[nombreCoincidencia];
+                } else {
+                    asesoresNoEncontrados.push(p.ejecutivo);
+                }
+
+                const descuento = count * valorUnitario;
+                const subtotalAjustado = Math.max(0, p.subtotal_original - descuento);
+
+                // Recalcular totales
+                let retencion_val = 0, iva_val = 0, total_a_pagar = subtotalAjustado;
+
+                if (isJuridico) {
+                    retencion_val = subtotalAjustado * retPct;
+                    iva_val = subtotalAjustado * ivaPct;
+                    total_a_pagar = subtotalAjustado - retencion_val + iva_val;
+                }
+
+                // Actualizar datos
+                p.agenteMotorCount = count;
+                p.agenteMotorDescuento = Math.round(descuento);
+                p.total_comision = Math.round(subtotalAjustado);
+                p.retencion_val = Math.round(retencion_val);
+                p.iva_val = Math.round(iva_val);
+                p.total_a_pagar = Math.round(total_a_pagar);
+            });
+
+            updateResultsTable();
+            updateMetrics();
+
+            if (asesoresNoEncontrados.length > 0) {
+                alert(`⚠️ Los siguientes ejecutivos no se encontraron en AgenteMotor (se aplicó 0 descuento):\n\n${asesoresNoEncontrados.join('\n')}`);
+            } else {
+                alert('✅ Cálculos actualizados correctamente con los descuentos de AgenteMotor');
+            }
+        }
+
         function switchTab(num) {
             document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
             document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
@@ -1080,7 +1415,7 @@
             document.getElementById(`tab${num}`).classList.add('active');
         }
 
-        // Generate Excel Workbooks for Individual Liquidations - NÚMEROS ENTEROS SIN DECIMALES
+        // Generate Excel Workbooks for Individual Liquidations
         function generateIndividualWorkbook(data) {
             const wb = XLSX.utils.book_new();
             const ws = {};
@@ -1105,24 +1440,28 @@
                 border: borderStyle
             };
 
+            const discountStyle = {
+                fill: { fgColor: { rgb: "FFA502" } },
+                font: { bold: true, color: { rgb: "FFFFFF" } },
+                border: borderStyle
+            };
+
             const noBorderStyle = {
                 top: { style: "none" }, bottom: { style: "none" },
                 left: { style: "none" }, right: { style: "none" }
             };
 
-            // Función para escribir celda numérica entera
             function writeIntCell(r, c, value, style = null) {
                 const cell_ref = XLSX.utils.encode_cell({ r, c });
                 ws[cell_ref] = {
                     v: Math.round(value),
                     t: 'n',
-                    z: '0'  // Formato número entero sin separadores
+                    z: '0'
                 };
                 if (style) ws[cell_ref].s = style;
                 return cell_ref;
             }
 
-            // Función para escribir celda de texto
             function writeStrCell(r, c, value, style = null) {
                 const cell_ref = XLSX.utils.encode_cell({ r, c });
                 ws[cell_ref] = { v: String(value), t: 's' };
@@ -1142,7 +1481,7 @@
             writeStrCell(currentRow, 0, "Fecha de generación:", { font: { bold: true } });
             writeStrCell(currentRow, 1, new Date().toLocaleString());
             currentRow++;
-            currentRow++; // Empty row
+            currentRow++;
 
             // Headers de columnas
             data.headers.forEach((h, c) => {
@@ -1150,8 +1489,8 @@
             });
             currentRow++;
 
-            // Filas de datos - NÚMEROS ENTEROS
-            const numericColumns = [7, 9, 11, 12]; // Prima_Sin_IVA, Comi_Gene_Agencia, Comi_Gene_Ejecutivo, Comi_Pagada_Ejecutivo
+            // Filas de datos
+            const numericColumns = [7, 9, 11, 12];
 
             data.rows.forEach(r => {
                 r.row.slice(0, 13).forEach((val, c) => {
@@ -1171,15 +1510,45 @@
                 currentRow++;
             });
 
-            currentRow++; // Empty row
+            currentRow++;
 
-            // Totales
+            // Totales con AgenteMotor
             const emptyPad = Math.max(0, data.headers.length - 2);
 
             if (!data.isJuridico) {
-                writeStrCell(currentRow, emptyPad, "TOTAL LIQUIDACIÓN", totalStyle);
-                writeIntCell(currentRow, emptyPad + 1, data.total_comision, totalStyle);
+                // NATURAL
+                writeStrCell(currentRow, emptyPad, "SUBTOTAL COMISIONES", totalStyle);
+                writeIntCell(currentRow, emptyPad + 1, data.subtotal_original, totalStyle);
+                currentRow++;
+
+                if (data.agenteMotorDescuento > 0) {
+                    writeStrCell(currentRow, emptyPad, `DESCUENTO AGENTEMOTOR (${data.agenteMotorCount} unidades)`, discountStyle);
+                    writeIntCell(currentRow, emptyPad + 1, -data.agenteMotorDescuento, discountStyle);
+                    currentRow++;
+                }
+
+                writeStrCell(currentRow, emptyPad, "TOTAL LIQUIDACIÓN", {
+                    font: { bold: true, sz: 12, color: { rgb: "1F4E78" } },
+                    fill: { fgColor: { rgb: "00F0FF" } },
+                    border: borderStyle
+                });
+                writeIntCell(currentRow, emptyPad + 1, data.total_comision, {
+                    font: { bold: true, sz: 12, color: { rgb: "1F4E78" } },
+                    fill: { fgColor: { rgb: "00F0FF" } },
+                    border: borderStyle
+                });
             } else {
+                // JURÍDICO
+                writeStrCell(currentRow, emptyPad, "SUBTOTAL COMISIONES", totalStyle);
+                writeIntCell(currentRow, emptyPad + 1, data.subtotal_original, totalStyle);
+                currentRow++;
+
+                if (data.agenteMotorDescuento > 0) {
+                    writeStrCell(currentRow, emptyPad, `DESCUENTO AGENTEMOTOR (${data.agenteMotorCount} unidades)`, discountStyle);
+                    writeIntCell(currentRow, emptyPad + 1, -data.agenteMotorDescuento, discountStyle);
+                    currentRow++;
+                }
+
                 writeStrCell(currentRow, emptyPad, "TOTAL COMISIONES", totalStyle);
                 writeIntCell(currentRow, emptyPad + 1, data.total_comision, totalStyle);
                 currentRow += 3;
@@ -1228,11 +1597,8 @@
                 for (let c = 0; c < fPad; c++) writeStrCell(currentRow, c, "", { border: noBorderStyle });
             }
 
-            // Definir rango
             const range = { s: { r: 0, c: 0 }, e: { r: currentRow, c: data.headers.length - 1 } };
             ws['!ref'] = XLSX.utils.encode_range(range);
-
-            // Anchos de columna
             ws['!cols'] = data.headers.map(h => ({ wch: Math.max(15, h.length + 2) }));
 
             XLSX.utils.book_append_sheet(wb, ws, "Liquidacion");
@@ -1261,17 +1627,24 @@
                 ["CONSOLIDADO GENERAL DE PAGOS"],
                 [`Fecha: ${new Date().toLocaleString()}`],
                 [],
-                ["Ejecutivo", "Total Pago", "Tipo", "Archivo Origen"]
+                ["Ejecutivo", "Subtotal", "Desc. AgenteMotor", "Total a Pagar", "Tipo", "Archivo Origen"]
             ];
 
             let granTotal = 0;
             processedData.sort((a, b) => a.ejecutivo.localeCompare(b.ejecutivo)).forEach(p => {
-                sumData.push([p.ejecutivo, p.total_a_pagar, p.isJuridico ? "Jurídico" : "Natural", p.fileName]);
+                sumData.push([
+                    p.ejecutivo,
+                    p.subtotal_original,
+                    p.agenteMotorDescuento,
+                    p.total_a_pagar,  // ← CAMBIO: Ahora usa total_a_pagar (después de impuestos para jurídicos)
+                    p.isJuridico ? "Jurídico" : "Natural",
+                    p.fileName
+                ]);
                 granTotal += p.total_a_pagar;
             });
 
             sumData.push([]);
-            sumData.push(["GRAN TOTAL A DISPERSAR:", granTotal]);
+            sumData.push(["GRAN TOTAL A DISPERSAR:", "", "", granTotal]);
 
             const ws = XLSX.utils.aoa_to_sheet(sumData);
 
@@ -1305,9 +1678,8 @@
                         ws[cell_ref].s.alignment = { vertical: 'center' };
                     }
 
-                    // NÚMEROS ENTEROS SIN FORMATO ESPECIAL
                     if (ws[cell_ref].t === 'n') {
-                        ws[cell_ref].z = '0';  // Formato entero sin separadores
+                        ws[cell_ref].z = '0';
                         ws[cell_ref].s.alignment = { horizontal: 'right', vertical: 'center' };
                     }
 
@@ -1318,16 +1690,16 @@
                             border: borderStyle,
                             alignment: { horizontal: 'right' }
                         };
-                        const next_cell = XLSX.utils.encode_cell({ c: C + 1, r: R });
+                        const next_cell = XLSX.utils.encode_cell({ c: C + 3, r: R });
                         if (ws[next_cell]) {
                             ws[next_cell].s = { font: { bold: true, sz: 12 }, fill: { fgColor: { rgb: "FFFF00" } }, border: borderStyle };
-                            ws[next_cell].z = '0';  // Formato entero
+                            ws[next_cell].z = '0';
                         }
                     }
                 }
             }
 
-            ws['!cols'] = [{ wch: 35 }, { wch: 20 }, { wch: 15 }, { wch: 40 }];
+            ws['!cols'] = [{ wch: 35 }, { wch: 15 }, { wch: 18 }, { wch: 18 }, { wch: 15 }, { wch: 40 }];
             XLSX.utils.book_append_sheet(wb, ws, "RESUMEN GENERAL");
             XLSX.writeFile(wb, `CONSOLIDADO_${new Date().toISOString().split('T')[0]}.xlsx`);
         }
@@ -1343,10 +1715,6 @@
             const buff = await file.arrayBuffer();
             bankTemplateWorkbook = XLSX.read(buff, { type: 'array' });
         });
-
-        function normalizarTexto(txt) {
-            return String(txt).normalize("NFD").replace(/[\u0300-\u036f]/g, "").toUpperCase().trim();
-        }
 
         function downloadBankFile() {
             if (!bankTemplateWorkbook || processedData.length === 0) return;
