@@ -12,6 +12,9 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
     <style>
+        /* ══════════════════════════════════════════
+           TOKENS & RESET
+        ══════════════════════════════════════════ */
         :root {
             --bg: #0d0f14;
             --bg-panel: #13151c;
@@ -57,7 +60,106 @@
             overflow: hidden;
         }
 
-        /* ──────────── HEADER ──────────── */
+        /* ══════════════════════════════════════════
+           TOAST SYSTEM (replaces alert())
+        ══════════════════════════════════════════ */
+        #toast-container {
+            position: fixed;
+            top: 1rem;
+            right: 1rem;
+            z-index: 9999;
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+            pointer-events: none;
+        }
+
+        .toast {
+            display: flex;
+            align-items: flex-start;
+            gap: 0.6rem;
+            padding: 0.75rem 1rem;
+            border-radius: 10px;
+            font-family: var(--font-mono);
+            font-size: 0.75rem;
+            max-width: 360px;
+            pointer-events: all;
+            animation: toastIn 0.25s ease;
+            border: 1px solid transparent;
+            line-height: 1.5;
+        }
+
+        .toast.success {
+            background: #0a1f0e;
+            border-color: rgba(46, 213, 115, 0.35);
+            color: var(--green);
+        }
+
+        .toast.error {
+            background: #1f0a0a;
+            border-color: rgba(255, 71, 87, 0.35);
+            color: var(--red);
+        }
+
+        .toast.warning {
+            background: #1f160a;
+            border-color: rgba(255, 165, 2, 0.35);
+            color: var(--orange);
+        }
+
+        .toast.info {
+            background: #0a111f;
+            border-color: rgba(0, 240, 255, 0.35);
+            color: var(--accent);
+        }
+
+        .toast-close {
+            background: none;
+            border: none;
+            color: inherit;
+            cursor: pointer;
+            opacity: 0.6;
+            font-size: 0.85rem;
+            margin-left: auto;
+            flex-shrink: 0;
+            padding: 0;
+        }
+
+        .toast-close:hover {
+            opacity: 1;
+        }
+
+        .toast.out {
+            animation: toastOut 0.2s ease forwards;
+        }
+
+        @keyframes toastIn {
+            from {
+                opacity: 0;
+                transform: translateX(16px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        @keyframes toastOut {
+            from {
+                opacity: 1;
+                transform: translateX(0);
+            }
+
+            to {
+                opacity: 0;
+                transform: translateX(16px);
+            }
+        }
+
+        /* ══════════════════════════════════════════
+           HEADER
+        ══════════════════════════════════════════ */
         .app-header {
             grid-area: header;
             border-bottom: 1px solid var(--border);
@@ -105,7 +207,9 @@
             color: var(--green);
         }
 
-        /* ──────────── SIDEBAR ──────────── */
+        /* ══════════════════════════════════════════
+           SIDEBAR
+        ══════════════════════════════════════════ */
         .sidebar {
             grid-area: sidebar;
             background: var(--bg-panel);
@@ -114,6 +218,7 @@
             flex-direction: column;
             overflow-y: auto;
             overflow-x: hidden;
+            transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
         }
 
         .sidebar::-webkit-scrollbar {
@@ -177,7 +282,19 @@
             flex-shrink: 0;
         }
 
-        /* Toggle buttons for perfil */
+        /* ══════════════════════════════════════════
+           FISCAL PARAMS — estado con clase en vez de style inline
+        ══════════════════════════════════════════ */
+        #fiscalParams {
+            transition: opacity 0.2s;
+        }
+
+        #fiscalParams.disabled {
+            opacity: 0.4;
+            pointer-events: none;
+        }
+
+        /* Toggle buttons */
         .toggle-group {
             display: flex;
             gap: 0.4rem;
@@ -203,12 +320,11 @@
             color: var(--accent);
         }
 
-        /* Hidden radios */
         .radio-hidden {
             display: none;
         }
 
-        /* Input mini */
+        /* Mini inputs */
         .mini-label {
             font-size: 0.65rem;
             color: var(--muted);
@@ -239,7 +355,7 @@
             cursor: not-allowed;
         }
 
-        /* Sidebar file upload cards */
+        /* Sidebar file cards */
         .s-file-card {
             background: var(--bg-input);
             border: 1px dashed var(--border-2);
@@ -275,7 +391,7 @@
             color: var(--green);
         }
 
-        /* Banco section in sidebar */
+        /* Status dot */
         .s-status-dot {
             display: inline-block;
             width: 7px;
@@ -297,7 +413,7 @@
             vertical-align: middle;
         }
 
-        /* Sidebar btn */
+        /* Sidebar buttons */
         .s-btn {
             width: 100%;
             padding: 0.55rem;
@@ -345,7 +461,28 @@
             cursor: not-allowed;
         }
 
-        /* ──────────── MAIN ──────────── */
+        /* Hamburger toggle (mobile) */
+        .sidebar-toggle {
+            display: none;
+            position: fixed;
+            top: 0.8rem;
+            left: 0.8rem;
+            z-index: 500;
+            width: 36px;
+            height: 36px;
+            border-radius: 8px;
+            background: var(--bg-panel);
+            border: 1px solid var(--border-2);
+            color: var(--text);
+            font-size: 1rem;
+            cursor: pointer;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* ══════════════════════════════════════════
+           MAIN
+        ══════════════════════════════════════════ */
         .app-main {
             grid-area: main;
             display: grid;
@@ -355,9 +492,8 @@
             overflow: hidden;
         }
 
-        /* Metrics bar spans full width */
         .metrics-bar {
-            grid-column: 1 / -1;
+            grid-column: 1/-1;
             display: grid;
             grid-template-columns: repeat(4, 1fr);
             border-bottom: 1px solid var(--border);
@@ -405,7 +541,7 @@
             color: var(--muted);
         }
 
-        /* Left panel: drop zone */
+        /* Drop zone */
         .panel-drop {
             border-right: 1px solid var(--border);
             display: flex;
@@ -463,7 +599,7 @@
             padding: 0 2rem;
         }
 
-        /* File chips list inside drop panel */
+        /* File chips */
         .file-chips-bar {
             padding: 0.5rem 1rem;
             border-top: 1px solid var(--border);
@@ -521,7 +657,7 @@
             font-style: italic;
         }
 
-        /* Right panel: results table */
+        /* Results table panel */
         .panel-results {
             display: flex;
             flex-direction: column;
@@ -626,7 +762,9 @@
             gap: 0.5rem;
         }
 
-        /* ──────────── FOOTER ──────────── */
+        /* ══════════════════════════════════════════
+           FOOTER
+        ══════════════════════════════════════════ */
         .app-footer {
             grid-area: footer;
             border-top: 1px solid var(--border);
@@ -706,10 +844,9 @@
             flex: 1;
         }
 
-        /* ──────────── EXTENDED PANELS (hidden by default, appear below main) ──────────── */
-        /* These sections are shown as modal-style overlays or scrollable drawers */
-
-        /* AgenteMotor section - rendered as a floating panel */
+        /* ══════════════════════════════════════════
+           FLOATING PANEL (AgenteMotor)
+        ══════════════════════════════════════════ */
         .ext-panel {
             display: none;
             position: fixed;
@@ -752,6 +889,7 @@
             font-size: 1rem;
             line-height: 1;
             transition: color 0.2s;
+            padding: 0;
         }
 
         .ext-panel-close:hover {
@@ -762,7 +900,9 @@
             padding: 1rem;
         }
 
-        /* Banco section shown as full overlay drawer */
+        /* ══════════════════════════════════════════
+           DRAWER
+        ══════════════════════════════════════════ */
         .drawer {
             display: none;
             position: fixed;
@@ -828,7 +968,7 @@
             color: var(--red);
         }
 
-        /* Generic mini card */
+        /* Mini cards */
         .mini-card {
             background: var(--bg-panel);
             border: 1px solid var(--border);
@@ -852,7 +992,7 @@
             margin-top: 0.5rem;
         }
 
-        /* Tabs (results section inside drawer or panel) */
+        /* Tabs */
         .tabs {
             display: flex;
             border-bottom: 1px solid var(--border);
@@ -953,7 +1093,7 @@
             box-shadow: 0 0 8px var(--accent);
         }
 
-        /* Agente item */
+        /* Agente items */
         .agente-item {
             display: flex;
             justify-content: space-between;
@@ -1030,7 +1170,7 @@
             color: var(--red);
         }
 
-        /* banco grid */
+        /* Banco grid */
         .banco-grid {
             display: grid;
             grid-template-columns: 1fr 1fr;
@@ -1038,7 +1178,7 @@
             margin-bottom: 1rem;
         }
 
-        /* input group inside drawer */
+        /* Drawer input groups */
         .d-input-group {
             margin-bottom: 0.7rem;
         }
@@ -1114,14 +1254,13 @@
             color: #000;
         }
 
-        /* Action bar */
         .action-bar {
             display: flex;
             gap: 0.6rem;
             margin-top: 1rem;
         }
 
-        /* template section (file drop) in drawer */
+        /* Template drop */
         .tmpl-drop {
             background: var(--bg-input);
             border: 1px dashed var(--border-2);
@@ -1156,14 +1295,14 @@
             color: var(--green);
         }
 
-        /* 3-col grid for pagador inputs */
+        /* 3-col grid */
         .grid-3 {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
             gap: 0.6rem;
         }
 
-        /* hide utility */
+        /* Utility */
         .hide {
             display: none !important;
         }
@@ -1191,7 +1330,7 @@
             margin-bottom: 0.7rem;
         }
 
-        /* agente status */
+        /* Agente status */
         .agente-status {
             display: inline-flex;
             align-items: center;
@@ -1214,6 +1353,7 @@
             color: var(--green);
         }
 
+        /* Banco status */
         .banco-status {
             display: inline-flex;
             align-items: center;
@@ -1236,7 +1376,40 @@
             color: var(--green);
         }
 
-        /* ──────────── KEYFRAMES ──────────── */
+        /* Results drawer */
+        .results-drawer {
+            display: none;
+            position: fixed;
+            inset: 0;
+            z-index: 200;
+        }
+
+        .results-drawer.open {
+            display: flex;
+        }
+
+        /* Global scrollbar */
+        ::-webkit-scrollbar {
+            width: 4px;
+            height: 4px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--border-2);
+            border-radius: 2px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--accent);
+        }
+
+        /* ══════════════════════════════════════════
+           KEYFRAMES
+        ══════════════════════════════════════════ */
         @keyframes spin {
             to {
                 transform: rotate(360deg);
@@ -1277,45 +1450,161 @@
             }
         }
 
-        /* Results drawer */
-        .results-drawer {
-            display: none;
-            position: fixed;
-            inset: 0;
-            z-index: 200;
+        /* ══════════════════════════════════════════
+           RESPONSIVE — Tablet (≤ 1024px)
+        ══════════════════════════════════════════ */
+        @media (max-width: 1024px) {
+            :root {
+                --sidebar-w: 220px;
+            }
+
+            .metrics-bar {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .metric-cell:nth-child(2) {
+                border-right: none;
+            }
+
+            .app-main {
+                grid-template-columns: 1fr;
+            }
+
+            .panel-drop {
+                border-right: none;
+                border-bottom: 1px solid var(--border);
+                max-height: 280px;
+            }
+
+            .drop-zone {
+                margin: 0.5rem;
+            }
         }
 
-        .results-drawer.open {
-            display: flex;
-        }
+        /* ══════════════════════════════════════════
+           RESPONSIVE — Mobile (≤ 768px)
+        ══════════════════════════════════════════ */
+        @media (max-width: 768px) {
+            body {
+                grid-template-columns: 1fr;
+                grid-template-rows: var(--header-h) 1fr var(--footer-h);
+                grid-template-areas:
+                    "header"
+                    "main"
+                    "footer";
+            }
 
-        /* scrollbar global */
-        ::-webkit-scrollbar {
-            width: 4px;
-            height: 4px;
-        }
+            .sidebar {
+                position: fixed;
+                left: 0;
+                top: 0;
+                bottom: 0;
+                width: var(--sidebar-w);
+                z-index: 300;
+                transform: translateX(-100%);
+            }
 
-        ::-webkit-scrollbar-track {
-            background: transparent;
-        }
+            .sidebar.open {
+                transform: translateX(0);
+                box-shadow: 4px 0 40px rgba(0, 0, 0, 0.6);
+            }
 
-        ::-webkit-scrollbar-thumb {
-            background: var(--border-2);
-            border-radius: 2px;
-        }
+            .sidebar-toggle {
+                display: flex;
+            }
 
-        ::-webkit-scrollbar-thumb:hover {
-            background: var(--accent);
+            .sidebar-backdrop {
+                display: none;
+                position: fixed;
+                inset: 0;
+                background: rgba(0, 0, 0, 0.5);
+                z-index: 299;
+                backdrop-filter: blur(2px);
+            }
+
+            .sidebar-backdrop.open {
+                display: block;
+            }
+
+            .app-header {
+                padding-left: 3.5rem;
+            }
+
+            .metrics-bar {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .metric-val {
+                font-size: 1.1rem;
+            }
+
+            .app-main {
+                grid-template-columns: 1fr;
+                overflow-y: auto;
+            }
+
+            .panel-drop {
+                border-right: none;
+                border-bottom: 1px solid var(--border);
+                height: auto;
+                min-height: 200px;
+            }
+
+            .drop-zone {
+                margin: 0.5rem;
+                min-height: 140px;
+            }
+
+            .panel-results {
+                min-height: 200px;
+            }
+
+            .drawer-panel {
+                width: 100% !important;
+            }
+
+            .ext-panel {
+                width: calc(100vw - 2rem);
+            }
+
+            .app-footer {
+                gap: 0.3rem;
+                padding: 0 0.5rem;
+                flex-wrap: nowrap;
+                overflow-x: auto;
+            }
+
+            .f-btn {
+                padding: 0.4rem 0.6rem;
+                font-size: 0.65rem;
+            }
+
+            .banco-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .grid-3 {
+                grid-template-columns: 1fr 1fr;
+            }
         }
     </style>
 </head>
 
 <body>
 
+    <!-- Toast container -->
+    <div id="toast-container" role="status" aria-live="polite"></div>
+
+    <!-- Sidebar mobile backdrop -->
+    <div class="sidebar-backdrop" id="sidebarBackdrop" onclick="closeSidebar()"></div>
+
+    <!-- Hamburger toggle (mobile only) -->
+    <button class="sidebar-toggle" id="sidebarToggle" onclick="toggleSidebar()" aria-label="Abrir menú">☰</button>
+
     <!-- ═══════════════════════════════════════
-         LOADING OVERLAY
-    ═══════════════════════════════════════ -->
-    <div class="overlay" id="loadingOverlay">
+     LOADING OVERLAY
+═══════════════════════════════════════ -->
+    <div class="overlay" id="loadingOverlay" role="dialog" aria-label="Procesando archivos" aria-modal="true">
         <div class="spinner"></div>
         <div class="overlay-text" id="loadingText">Procesando...</div>
         <div class="progress-bar">
@@ -1324,8 +1613,8 @@
     </div>
 
     <!-- ═══════════════════════════════════════
-         HEADER
-    ═══════════════════════════════════════ -->
+     HEADER
+═══════════════════════════════════════ -->
     <header class="app-header">
         <div>
             <div class="header-title">Panel de <span>Control</span></div>
@@ -1335,9 +1624,9 @@
     </header>
 
     <!-- ═══════════════════════════════════════
-         SIDEBAR
-    ═══════════════════════════════════════ -->
-    <aside class="sidebar">
+     SIDEBAR
+═══════════════════════════════════════ -->
+    <aside class="sidebar" id="mainSidebar" aria-label="Configuración">
         <div class="sidebar-brand">
             <div class="brand-name">Liquidador Pro</div>
             <div class="brand-sub">Sistema de Comisiones 2026</div>
@@ -1346,11 +1635,12 @@
         <!-- Perfil del Asesor -->
         <div class="sidebar-group">
             <div class="group-label">Perfil del Asesor</div>
-            <div class="toggle-group" id="perfilGroup">
-                <button class="toggle-btn active" onclick="setPerfil('Natural')" id="btnNatural">Natural</button>
-                <button class="toggle-btn" onclick="setPerfil('Jurídico')" id="btnJuridico">Jurídico</button>
+            <div class="toggle-group" id="perfilGroup" role="group" aria-label="Tipo de persona">
+                <button class="toggle-btn active" onclick="setPerfil('Natural')" id="btnNatural"
+                    aria-pressed="true">Natural</button>
+                <button class="toggle-btn" onclick="setPerfil('Jurídico')" id="btnJuridico"
+                    aria-pressed="false">Jurídico</button>
             </div>
-            <!-- Hidden radios for compatibility -->
             <input type="radio" name="perfil" value="Natural" class="radio-hidden" id="perfilNatural" checked>
             <input type="radio" name="perfil" value="Jurídico" class="radio-hidden" id="perfilJuridico">
         </div>
@@ -1358,21 +1648,21 @@
         <!-- AgenteMotor -->
         <div class="sidebar-group">
             <div class="group-label">AgenteMotor</div>
-            <label class="mini-label">Valor por unidad ($)</label>
+            <label class="mini-label" for="valorAgenteMotor">Valor por unidad ($)</label>
             <input type="number" id="valorAgenteMotor" value="0" step="1000" min="0" class="mini-input">
             <div class="s-file-card" id="sAgenteCard">
-                <input type="file" id="agenteMotorInput" accept=".xlsx,.xls">
+                <input type="file" id="agenteMotorInput" accept=".xlsx,.xls" aria-label="Cargar archivo AgenteMotor">
                 <span class="s-file-label" id="agenteMotorText">📁 Cargar archivo</span>
             </div>
-            <div id="agenteMotorStatus" class="agente-status pending">⏳ Esperando archivo...</div>
+            <div id="agenteMotorStatus" class="agente-status pending" aria-live="polite">⏳ Esperando archivo...</div>
         </div>
 
         <!-- Parámetros Fiscales -->
-        <div class="sidebar-group" id="fiscalParams" style="opacity:0.4;pointer-events:none;">
+        <div class="sidebar-group disabled" id="fiscalParams">
             <div class="group-label">Parámetros Fiscales</div>
-            <label class="mini-label">Retención en la fuente (%)</label>
+            <label class="mini-label" for="retencion">Retención en la fuente (%)</label>
             <input type="number" id="retencion" value="11.0" step="0.1" min="0" max="100" class="mini-input">
-            <label class="mini-label">IVA (%)</label>
+            <label class="mini-label" for="iva">IVA (%)</label>
             <input type="number" id="iva" value="19.0" step="0.1" min="0" max="100" class="mini-input">
         </div>
 
@@ -1380,28 +1670,25 @@
         <div class="sidebar-group" id="bancoSidebarGroup">
             <div class="group-label">Configuración Banco</div>
             <div class="s-file-card">
-                <input type="file" id="bdCuentasInput" accept=".xlsx,.xls">
+                <input type="file" id="bdCuentasInput" accept=".xlsx,.xls" aria-label="Cargar BD Cuentas">
                 <span class="s-file-label" id="bdCuentasText">🗂 BD Cuentas</span>
             </div>
-            <span id="bdCuentasStatus" class="banco-status pending">⏳ Esperando BD...</span>
-
+            <span id="bdCuentasStatus" class="banco-status pending" aria-live="polite">⏳ Esperando BD...</span>
             <div class="s-file-card" style="margin-top:0.5rem;">
-                <input type="file" id="convencionesInput" accept=".xlsx,.xls">
+                <input type="file" id="convencionesInput" accept=".xlsx,.xls" aria-label="Cargar Convenciones">
                 <span class="s-file-label" id="convencionesText">📋 Convenciones</span>
             </div>
-            <span id="convencionesStatus" class="banco-status pending">⏳ Esperando convenciones...</span>
-
-            <button class="s-btn s-green" style="margin-top:0.6rem;" onclick="openBancoDrawer()">
-                🏦 Generar Banco
-            </button>
+            <span id="convencionesStatus" class="banco-status pending" aria-live="polite">⏳ Esperando
+                convenciones...</span>
+            <button class="s-btn s-green" style="margin-top:0.6rem;" onclick="openBancoDrawer()">🏦 Generar
+                Banco</button>
         </div>
     </aside>
 
     <!-- ═══════════════════════════════════════
-         MAIN AREA
-    ═══════════════════════════════════════ -->
+     MAIN AREA
+═══════════════════════════════════════ -->
     <main class="app-main">
-
         <!-- METRICS BAR -->
         <div class="metrics-bar">
             <div class="metric-cell">
@@ -1424,14 +1711,12 @@
 
         <!-- DROP ZONE PANEL -->
         <div class="panel-drop">
-            <div class="drop-zone" id="dropZone">
-                <input type="file" id="fileInput" multiple accept=".xml">
+            <div class="drop-zone" id="dropZone" role="region" aria-label="Zona de carga de archivos XML">
+                <input type="file" id="fileInput" multiple accept=".xml" aria-label="Seleccionar archivos XML">
                 <div class="drop-icon">⚡</div>
                 <div class="drop-title">Arrastra archivos XML</div>
                 <div class="drop-sub">o haz clic para seleccionar múltiples liquidaciones de comisiones</div>
             </div>
-
-            <!-- File chips bar -->
             <div class="file-chips-bar" id="fileChipsBar">
                 <span class="chips-label" id="chipsCountLabel">ARCHIVOS XML</span>
                 <span class="badge badge-blue" id="chipsCountBadge">0</span>
@@ -1454,7 +1739,7 @@
                     <span style="font-size:1.5rem;opacity:0.3;">◈</span>
                     No hay datos procesados
                 </div>
-                <table id="mainTable" class="hide">
+                <table id="mainTable" class="hide" aria-label="Resultados de liquidaciones">
                     <thead>
                         <tr>
                             <th>Ejecutivo</th>
@@ -1467,12 +1752,11 @@
                 </table>
             </div>
         </div>
-
     </main>
 
     <!-- ═══════════════════════════════════════
-         FOOTER
-    ═══════════════════════════════════════ -->
+     FOOTER
+═══════════════════════════════════════ -->
     <footer class="app-footer">
         <button class="f-btn f-reset" onclick="resetApp()">🗑 Reiniciar Todo</button>
         <div class="f-spacer"></div>
@@ -1482,12 +1766,12 @@
     </footer>
 
     <!-- ═══════════════════════════════════════
-         AGENTEMOTOR FLOATING PANEL
-    ═══════════════════════════════════════ -->
-    <div class="ext-panel" id="agenteMotorPanel">
+     AGENTEMOTOR FLOATING PANEL
+═══════════════════════════════════════ -->
+    <div class="ext-panel" id="agenteMotorPanel" role="dialog" aria-label="Panel AgenteMotor" aria-modal="false">
         <div class="ext-panel-header">
             <span class="ext-panel-title" style="color:var(--orange);">🚗 AgenteMotor — Descuentos</span>
-            <button class="ext-panel-close" onclick="closeAgentePanel()">✕</button>
+            <button class="ext-panel-close" onclick="closeAgentePanel()" aria-label="Cerrar panel">✕</button>
         </div>
         <div class="ext-panel-body">
             <div id="agenteMotorSummary" class="agente-summary hide">
@@ -1497,122 +1781,100 @@
             <div class="action-bar">
                 <button class="d-btn"
                     style="background:rgba(255,165,2,0.1);border-color:rgba(255,165,2,0.3);color:var(--orange);"
-                    id="btnRecalcular" onclick="recalcularConAgenteMotor()" disabled>
-                    🔄 Recalcular Totales
-                </button>
+                    id="btnRecalcular" onclick="recalcularConAgenteMotor()" disabled>🔄 Recalcular Totales</button>
             </div>
         </div>
     </div>
 
     <!-- ═══════════════════════════════════════
-         BANCO DRAWER
-    ═══════════════════════════════════════ -->
-    <div class="drawer" id="bancoDrawer">
+     BANCO DRAWER
+═══════════════════════════════════════ -->
+    <div class="drawer" id="bancoDrawer" role="dialog" aria-label="Configuración Archivo Banco" aria-modal="true">
         <div class="drawer-backdrop" onclick="closeBancoDrawer()"></div>
         <div class="drawer-panel">
             <div class="drawer-header">
                 <span class="drawer-title" style="color:var(--accent2);">🏦 Configuración Archivo Banco (ACH)</span>
-                <button class="drawer-close" onclick="closeBancoDrawer()">✕</button>
+                <button class="drawer-close" onclick="closeBancoDrawer()" aria-label="Cerrar">✕</button>
             </div>
             <div class="drawer-body">
                 <p style="font-size:0.72rem;color:var(--muted);margin-bottom:1rem;">
                     Carga la Base de Datos de cuentas y las convenciones para generar el archivo bancario.
                 </p>
-
                 <div class="banco-grid">
                     <div class="mini-card">
                         <div class="mini-card-title">Base de Datos Cuentas</div>
                         <div class="tmpl-drop">
-                            <input type="file" id="bdCuentasInputDrawer" accept=".xlsx,.xls">
+                            <input type="file" id="bdCuentasInputDrawer" accept=".xlsx,.xls"
+                                aria-label="Cargar BDcuentas en drawer">
                             <span class="tmpl-drop-label" id="bdCuentasTextDrawer">📁 Cargar BDcuentas.xlsx</span>
                         </div>
                         <div id="bdCuentasStatusDrawer" class="banco-status pending">⏳ Esperando BD...</div>
                     </div>
-
                     <div class="mini-card">
                         <div class="mini-card-title">Tablas de Convenciones</div>
                         <div class="tmpl-drop">
-                            <input type="file" id="convencionesInputDrawer" accept=".xlsx,.xls">
+                            <input type="file" id="convencionesInputDrawer" accept=".xlsx,.xls"
+                                aria-label="Cargar convenciones en drawer">
                             <span class="tmpl-drop-label" id="convencionesTextDrawer">📁 Cargar convenciones.xlsx</span>
                         </div>
                         <div id="convencionesStatusDrawer" class="banco-status pending">⏳ Esperando convenciones...
                         </div>
                     </div>
                 </div>
-
-                <!-- Datos del Pagador -->
                 <div class="mini-card">
                     <div class="mini-card-title">⚙️ Datos del Pagador (Encabezado)</div>
                     <div class="grid-3">
-                        <div class="d-input-group">
-                            <label for="nitPagador">NIT Pagador</label>
-                            <input type="text" id="nitPagador" value="830514247">
-                        </div>
-                        <div class="d-input-group">
-                            <label for="tipoPago">Tipo de Pago</label>
-                            <input type="text" id="tipoPago" value="220">
-                        </div>
-                        <div class="d-input-group">
-                            <label for="aplicacion">Aplicación</label>
-                            <input type="text" id="aplicacion" value="I">
-                        </div>
-                        <div class="d-input-group">
-                            <label for="secuencia">Secuencia</label>
-                            <input type="text" id="secuencia" value="A1">
-                        </div>
-                        <div class="d-input-group">
-                            <label for="cuentaDebitar">Cuenta a Debitar</label>
-                            <input type="text" id="cuentaDebitar" value="10342607382">
-                        </div>
-                        <div class="d-input-group">
-                            <label for="tipoCuentaDebitar">Tipo Cuenta Debitar</label>
-                            <input type="text" id="tipoCuentaDebitar" value="S">
-                        </div>
+                        <div class="d-input-group"><label for="nitPagador">NIT Pagador</label><input type="text"
+                                id="nitPagador" value="830514247"></div>
+                        <div class="d-input-group"><label for="tipoPago">Tipo de Pago</label><input type="text"
+                                id="tipoPago" value="220"></div>
+                        <div class="d-input-group"><label for="aplicacion">Aplicación</label><input type="text"
+                                id="aplicacion" value="I"></div>
+                        <div class="d-input-group"><label for="secuencia">Secuencia</label><input type="text"
+                                id="secuencia" value="A1"></div>
+                        <div class="d-input-group"><label for="cuentaDebitar">Cuenta a Debitar</label><input type="text"
+                                id="cuentaDebitar" value="10342607382"></div>
+                        <div class="d-input-group"><label for="tipoCuentaDebitar">Tipo Cuenta Debitar</label><input
+                                type="text" id="tipoCuentaDebitar" value="S"></div>
                     </div>
                     <div class="d-input-group" style="margin-top:0.5rem;">
                         <label for="descripcionPago">Descripción del Pago</label>
                         <input type="text" id="descripcionPago" value="PAGO COMISIONES ASESORES">
                     </div>
                 </div>
-
-                <!-- Match summary -->
                 <div id="bancoMatchSummary" class="banco-summary hide">
                     <div
                         style="font-size:0.65rem;text-transform:uppercase;letter-spacing:0.1em;color:var(--muted);margin-bottom:0.7rem;">
                         🔗 Resumen de Vinculación</div>
                     <div id="bancoMatchList"></div>
                 </div>
-
                 <div class="action-bar">
-                    <button class="d-btn d-blue" id="btnVerificarBanco" onclick="verificarMatchesBanco()" disabled>
-                        🔍 Verificar Matches
-                    </button>
-                    <button class="d-btn d-green" id="btnGenerarBanco" onclick="generarArchivoBanco()" disabled>
-                        🏦 Generar Archivo Banco
-                    </button>
+                    <button class="d-btn d-blue" id="btnVerificarBanco" onclick="verificarMatchesBanco()" disabled>🔍
+                        Verificar Matches</button>
+                    <button class="d-btn d-green" id="btnGenerarBanco" onclick="generarArchivoBanco()" disabled>🏦
+                        Generar Archivo Banco</button>
                 </div>
             </div>
         </div>
     </div>
 
     <!-- ═══════════════════════════════════════
-         RESULTS FULL DRAWER
-    ═══════════════════════════════════════ -->
-    <div class="results-drawer" id="resultsDrawer">
+     RESULTS FULL DRAWER
+═══════════════════════════════════════ -->
+    <div class="results-drawer" id="resultsDrawer" role="dialog" aria-label="Centro de Descargas" aria-modal="true">
         <div class="drawer-backdrop" onclick="closeResultsDrawer()"></div>
         <div class="drawer-panel" style="width:680px;">
             <div class="drawer-header">
                 <span class="drawer-title">📥 Centro de Descargas y Resultados</span>
-                <button class="drawer-close" onclick="closeResultsDrawer()">✕</button>
+                <button class="drawer-close" onclick="closeResultsDrawer()" aria-label="Cerrar">✕</button>
             </div>
             <div class="drawer-body">
-                <div class="tabs">
-                    <div class="tab active" onclick="switchTab(1)">📄 Resultados</div>
-                    <div class="tab" onclick="switchTab(2)">📊 Consolidado</div>
-                    <div class="tab" onclick="switchTab(3)">🏦 Archivo Banco</div>
+                <div class="tabs" role="tablist">
+                    <div class="tab active" onclick="switchTab(1)" role="tab" aria-selected="true">📄 Resultados</div>
+                    <div class="tab" onclick="switchTab(2)" role="tab" aria-selected="false">📊 Consolidado</div>
+                    <div class="tab" onclick="switchTab(3)" role="tab" aria-selected="false">🏦 Archivo Banco</div>
                 </div>
-
-                <div class="tab-content active" id="tab1">
+                <div class="tab-content active" id="tab1" role="tabpanel">
                     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:0.8rem;">
                         <p style="color:var(--muted);font-size:0.72rem;">Paquete ZIP con todas las liquidaciones
                             individuales.</p>
@@ -1621,7 +1883,7 @@
                             onclick="downloadZip()">📦 Descargar ZIP</button>
                     </div>
                     <div style="overflow-x:auto;border-radius:8px;border:1px solid var(--border);">
-                        <table>
+                        <table aria-label="Tabla de resultados">
                             <thead>
                                 <tr>
                                     <th>Ejecutivo</th>
@@ -1636,18 +1898,16 @@
                         </table>
                     </div>
                 </div>
-
-                <div class="tab-content" id="tab2">
+                <div class="tab-content" id="tab2" role="tabpanel">
                     <p style="color:var(--muted);font-size:0.72rem;margin-bottom:1rem;">Resumen de todas las
                         liquidaciones en un solo archivo Excel.</p>
                     <button class="d-btn d-blue" onclick="downloadConsolidated()">📊 Descargar Consolidado
                         General</button>
                 </div>
-
-                <div class="tab-content" id="tab3">
+                <div class="tab-content" id="tab3" role="tabpanel">
                     <p style="color:var(--muted);font-size:0.72rem;margin-bottom:1rem;">Genera el archivo de dispersión
                         bancaria en formato PAB/ACH.</p>
-                    <button class="d-btn d-blue" onclick="closeBancoDrawer();openBancoDrawer();">Ir a Configuración
+                    <button class="d-btn d-blue" onclick="closeResultsDrawer();openBancoDrawer();">Ir a Configuración
                         Banco</button>
                 </div>
             </div>
@@ -1656,930 +1916,1017 @@
 
     <script>
         // ============================================================================
-        // STATE
+        // ENCAPSULATED APP STATE — ya no hay variables sueltas en window
         // ============================================================================
-        let selectedFiles = [];
-        let processedData = [];
-        let errors = [];
-        let bankTemplateWorkbook = null;
-        let agenteMotorData = null;
-        let agenteMotorFile = null;
+        const App = (() => {
+            // Estado interno privado
+            const _state = {
+                selectedFiles: [],
+                processedData: [],
+                agenteMotorData: null,
+                agenteMotorFile: null,
+                bdCuentasData: null,
+                convencionesData: null,
+                bancoMatches: [],
+            };
 
-        let bdCuentasData = null;
-        let convencionesData = null;
-        let bancoMatches = [];
-
-        // ============================================================================
-        // INIT
-        // ============================================================================
-        const dateStr = new Date().toLocaleDateString('es-CO', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
-        document.getElementById('currentDate').innerText = dateStr.charAt(0).toUpperCase() + dateStr.slice(1);
-
-        // ============================================================================
-        // PERFIL TOGGLE (wrapper for hidden radios)
-        // ============================================================================
-        function setPerfil(val) {
-            document.getElementById('perfilNatural').checked = val === 'Natural';
-            document.getElementById('perfilJuridico').checked = val === 'Jurídico';
-            document.getElementById('btnNatural').classList.toggle('active', val === 'Natural');
-            document.getElementById('btnJuridico').classList.toggle('active', val === 'Jurídico');
-
-            const fp = document.getElementById('fiscalParams');
-            if (val === 'Jurídico') {
-                fp.style.opacity = '1';
-                fp.style.pointerEvents = 'all';
-            } else {
-                fp.style.opacity = '0.4';
-                fp.style.pointerEvents = 'none';
+            // ──────────────────────────────────────────────
+            // TOAST SYSTEM
+            // ──────────────────────────────────────────────
+            function toast(msg, type = 'info', duration = 4000) {
+                const container = document.getElementById('toast-container');
+                const el = document.createElement('div');
+                el.className = `toast ${type}`;
+                el.setAttribute('role', 'alert');
+                el.innerHTML = `<span style="flex:1">${msg}</span><button class="toast-close" aria-label="Cerrar notificación">✕</button>`;
+                el.querySelector('.toast-close').onclick = () => dismissToast(el);
+                container.appendChild(el);
+                setTimeout(() => dismissToast(el), duration);
             }
-        }
-
-        // ============================================================================
-        // DRAWER / PANEL HELPERS
-        // ============================================================================
-        function openBancoDrawer() { document.getElementById('bancoDrawer').classList.add('open'); }
-        function closeBancoDrawer() { document.getElementById('bancoDrawer').classList.remove('open'); }
-        function openResultsDrawer() { document.getElementById('resultsDrawer').classList.add('open'); updateResultsTableDrawer(); }
-        function closeResultsDrawer() { document.getElementById('resultsDrawer').classList.remove('open'); }
-        function closeAgentePanel() { document.getElementById('agenteMotorPanel').classList.remove('open'); }
-
-        // ============================================================================
-        // FILE DRAG & DROP
-        // ============================================================================
-        const dropZone = document.getElementById('dropZone');
-        const fileInput = document.getElementById('fileInput');
-
-        ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(ev => dropZone.addEventListener(ev, e => { e.preventDefault(); e.stopPropagation(); }));
-        ['dragenter', 'dragover'].forEach(ev => dropZone.addEventListener(ev, () => dropZone.classList.add('dragover')));
-        ['dragleave', 'drop'].forEach(ev => dropZone.addEventListener(ev, () => dropZone.classList.remove('dragover')));
-        dropZone.addEventListener('drop', e => handleFiles(e.dataTransfer.files));
-        fileInput.addEventListener('change', e => handleFiles(e.target.files));
-
-        function handleFiles(files) {
-            const newFiles = Array.from(files).filter(f => f.name.toLowerCase().endsWith('.xml'));
-            selectedFiles = [...selectedFiles, ...newFiles];
-            updateFileList();
-        }
-
-        function updateFileList() {
-            const chipsList = document.getElementById('chipsList');
-            const empty = document.getElementById('chipsEmpty');
-            const badge = document.getElementById('chipsCountBadge');
-
-            badge.textContent = selectedFiles.length;
-
-            if (selectedFiles.length > 0) {
-                empty.classList.add('hide');
-                chipsList.innerHTML = selectedFiles.map((f, i) => `
-                    <div class="chip">
-                        ◬ ${f.name.replace('.xml', '')}
-                        <button class="chip-remove" onclick="removeFile(${i})">✕</button>
-                    </div>
-                `).join('');
-            } else {
-                empty.classList.remove('hide');
-                chipsList.innerHTML = '';
-            }
-        }
-
-        function removeFile(index) { selectedFiles.splice(index, 1); updateFileList(); }
-
-        function clearFiles() {
-            selectedFiles = [];
-            fileInput.value = '';
-            updateFileList();
-        }
-
-        function resetApp() {
-            clearFiles();
-            processedData = [];
-            errors = [];
-            agenteMotorData = null;
-            agenteMotorFile = null;
-            bdCuentasData = null;
-            convencionesData = null;
-            bancoMatches = [];
-
-            // Reset AgenteMotor UI
-            document.getElementById('agenteMotorInput').value = '';
-            document.getElementById('agenteMotorText').textContent = '📁 Cargar archivo';
-            document.getElementById('agenteMotorText').className = 's-file-label';
-            document.getElementById('agenteMotorStatus').textContent = '⏳ Esperando archivo...';
-            document.getElementById('agenteMotorStatus').className = 'agente-status pending';
-            document.getElementById('agenteMotorSummary').classList.add('hide');
-            document.getElementById('btnRecalcular').disabled = true;
-            document.getElementById('agenteMotorPanel').classList.remove('open');
-
-            // Reset Banco UI
-            ['bdCuentasInput', 'convencionesInput'].forEach(id => document.getElementById(id).value = '');
-            document.getElementById('bdCuentasText').textContent = '🗂 BD Cuentas';
-            document.getElementById('bdCuentasText').className = 's-file-label';
-            document.getElementById('bdCuentasStatus').textContent = '⏳ Esperando BD...';
-            document.getElementById('bdCuentasStatus').className = 'banco-status pending';
-            document.getElementById('convencionesText').textContent = '📋 Convenciones';
-            document.getElementById('convencionesText').className = 's-file-label';
-            document.getElementById('convencionesStatus').textContent = '⏳ Esperando convenciones...';
-            document.getElementById('convencionesStatus').className = 'banco-status pending';
-            document.getElementById('bancoMatchSummary').classList.add('hide');
-            document.getElementById('btnGenerarBanco').disabled = true;
-            document.getElementById('btnVerificarBanco').disabled = true;
-
-            // Reset results area
-            document.getElementById('emptyState').classList.remove('hide');
-            document.getElementById('mainTable').classList.add('hide');
-            document.getElementById('resultsTableBody').innerHTML = '';
-            document.getElementById('btnZip').disabled = true;
-            document.getElementById('btnConsol').disabled = true;
-
-            updateMetrics();
-            updateHeaderBadge();
-            alert('Jornada reiniciada exitosamente.');
-        }
-
-        // ============================================================================
-        // METRICS
-        // ============================================================================
-        function fmt(n) { return '$' + Math.round(n).toLocaleString('en-US'); }
-
-        function updateMetrics() {
-            const count = processedData.length;
-            const bruto = processedData.reduce((s, p) => s + p.subtotal_original, 0);
-            const desc = processedData.reduce((s, p) => s + p.agenteMotorDescuento, 0);
-            const neto = processedData.reduce((s, p) => s + p.total_a_pagar, 0);
-
-            document.getElementById('valProcessed').textContent = count;
-            document.getElementById('valBruto').textContent = fmt(bruto);
-            document.getElementById('valDesc').textContent = fmt(desc);
-            document.getElementById('valTotal').textContent = fmt(neto);
-        }
-
-        function updateHeaderBadge() {
-            const badge = document.getElementById('headerBadge');
-            if (processedData.length > 0) {
-                badge.textContent = `✅ ${processedData.length} liquidaciones`;
-                badge.className = 'header-badge ready';
-            } else {
-                badge.textContent = '⏳ Esperando archivos';
-                badge.className = 'header-badge';
-            }
-        }
-
-        // ============================================================================
-        // PARSE NUMERIC
-        // ============================================================================
-        function parseNumeric(val) {
-            if (!val) return 0;
-            let s = String(val).trim().replace('$', '').replace(/ /g, '').replace(/\xa0/g, '');
-            if (s.includes(',') && s.includes('.')) {
-                if (s.lastIndexOf(',') > s.lastIndexOf('.')) s = s.replace(/\./g, '').replace(/,/g, '.');
-                else s = s.replace(/,/g, '');
-            } else if (s.includes(',')) {
-                s = s.replace(/,/g, '.');
-            }
-            return parseFloat(s) || 0;
-        }
-
-        // ============================================================================
-        // PROCESS FILES
-        // ============================================================================
-        async function processFiles() {
-            if (selectedFiles.length === 0) return;
-
-            const isJuridico = document.querySelector('input[name="perfil"]:checked').value === 'Jurídico';
-            const retPct = parseFloat(document.getElementById('retencion').value) / 100 || 0;
-            const ivaPct = parseFloat(document.getElementById('iva').value) / 100 || 0;
-
-            const overlay = document.getElementById('loadingOverlay');
-            const progressFill = document.getElementById('loadingProgress');
-            const overlayText = document.getElementById('loadingText');
-
-            overlay.classList.add('active');
-
-            const oldNames = processedData.map(p => p.fileName);
-            const filesToProcess = selectedFiles.filter(f => !oldNames.includes(f.name));
-            errors = [];
-
-            if (filesToProcess.length === 0) {
-                overlay.classList.remove('active');
-                alert('Los archivos cargados ya fueron procesados previamente. Para volver a procesarlos, limpia la lista y vuelve a cargarlos.');
-                return;
+            function dismissToast(el) {
+                if (!el.parentNode) return;
+                el.classList.add('out');
+                setTimeout(() => el.parentNode && el.parentNode.removeChild(el), 220);
             }
 
-            const parser = new DOMParser();
-
-            for (let i = 0; i < filesToProcess.length; i++) {
-                const file = filesToProcess[i];
-                progressFill.style.width = `${((i + 1) / filesToProcess.length) * 100}%`;
-                overlayText.textContent = `Procesando ${i + 1}/${filesToProcess.length}: ${file.name}`;
-
+            // ──────────────────────────────────────────────
+            // PERSISTENCIA (localStorage)
+            // ──────────────────────────────────────────────
+            const LS_KEY = 'liquidadorPro_config';
+            function saveConfig() {
                 try {
-                    const text = await file.text();
-                    const doc = parser.parseFromString(text, "text/html");
-                    const allRows = Array.from(doc.getElementsByTagName('*')).filter(el => el.nodeName.toLowerCase().endsWith('row'));
-
-                    if (allRows.length < 2) throw new Error("XML sin datos suficientes o formato no soportado");
-
-                    let n_liq = "N/A", ejecutivo = "Desconocido", fecha_liq = "";
-                    let startIndex = -1;
-
-                    const extractText = (node) => Array.from(node.getElementsByTagName('*'))
-                        .filter(el => el.nodeName.toLowerCase().endsWith('data'))
-                        .map(d => d.textContent.trim());
-
-                    allRows.forEach((row, idx) => {
-                        const cellData = extractText(row);
-                        const joined = cellData.join(" ");
-                        cellData.forEach(c => {
-                            if (c.includes("Liquidación N°")) n_liq = c;
-                            else if (c.includes("Ejecutivo:")) ejecutivo = c.replace("Ejecutivo:", "").trim();
-                            else if (c.includes("Comisiones al")) fecha_liq = c.split("al")[1]?.trim() || fecha_liq;
-                        });
-                        if (joined.includes("Aseguradora") && startIndex === -1) startIndex = idx;
-                    });
-
-                    if (startIndex === -1) throw new Error("No se encontró la cabecera de datos (Aseguradora)");
-
-                    const headers = extractText(allRows[startIndex]).slice(0, 13);
-                    const tableData = [];
-
-                    for (let r = startIndex + 1; r < allRows.length; r++) {
-                        const cells = extractText(allRows[r]);
-                        if (cells.length > 0) tableData.push(cells.slice(0, 13));
-                    }
-
-                    let total_comision = 0;
-                    const cleanTableData = [];
-
-                    tableData.forEach(rowArr => {
-                        const val = parseNumeric(rowArr[rowArr.length - 1]);
-                        if (val !== 0) { total_comision += val; cleanTableData.push({ row: rowArr, comision: val }); }
-                    });
-
-                    if (cleanTableData.length === 0) throw new Error("No se encontraron comisiones pagables");
-
-                    const subtotal_original = total_comision;
-                    let agenteMotorCount = 0, agenteMotorDescuento = 0, total_comision_ajustada = subtotal_original;
-                    let retencion_val = 0, iva_val = 0, total_a_pagar = total_comision_ajustada;
-
-                    if (isJuridico) {
-                        retencion_val = total_comision_ajustada * retPct;
-                        iva_val = total_comision_ajustada * ivaPct;
-                        total_a_pagar = total_comision_ajustada - retencion_val + iva_val;
-                    }
-
-                    const safeName = ejecutivo.replace(/[^\w\s-]/gi, '').trim().replace(/ /g, '_') || "Sin_Nombre";
-
-                    processedData.push({
-                        fileName: file.name,
-                        safeName: `Liq_${safeName}.xlsx`,
-                        n_liq, ejecutivo, fecha_liq,
-                        headers: headers.slice(0, 13),
-                        rows: cleanTableData,
-                        isJuridico,
-                        subtotal_original: Math.round(subtotal_original),
-                        agenteMotorCount,
-                        agenteMotorDescuento: Math.round(agenteMotorDescuento),
-                        total_comision: Math.round(total_comision_ajustada),
-                        retencion_pct: isJuridico ? retPct * 100 : 0,
-                        retencion_val: Math.round(retencion_val),
-                        iva_pct: isJuridico ? ivaPct * 100 : 0,
-                        iva_val: Math.round(iva_val),
-                        total_a_pagar: Math.round(total_a_pagar)
-                    });
-
-                } catch (err) {
-                    errors.push({ file: file.name, error: err.message });
-                }
+                    const cfg = {
+                        perfil: document.querySelector('input[name="perfil"]:checked')?.value || 'Natural',
+                        valorAM: document.getElementById('valorAgenteMotor').value,
+                        retencion: document.getElementById('retencion').value,
+                        iva: document.getElementById('iva').value,
+                        nitPagador: document.getElementById('nitPagador').value,
+                        tipoPago: document.getElementById('tipoPago').value,
+                        aplicacion: document.getElementById('aplicacion').value,
+                        secuencia: document.getElementById('secuencia').value,
+                        cuentaDebitar: document.getElementById('cuentaDebitar').value,
+                        tipoCuentaDebitar: document.getElementById('tipoCuentaDebitar').value,
+                        descripcionPago: document.getElementById('descripcionPago').value,
+                    };
+                    localStorage.setItem(LS_KEY, JSON.stringify(cfg));
+                } catch (_) { }
             }
-
-            updateMetrics();
-            updateHeaderBadge();
-
-            if (processedData.length > 0) {
-                updateResultsTable();
-                document.getElementById('emptyState').classList.add('hide');
-                document.getElementById('mainTable').classList.remove('hide');
-                document.getElementById('btnZip').disabled = false;
-                document.getElementById('btnConsol').disabled = false;
-                document.getElementById('agenteMotorPanel').classList.add('open');
-
-                if (bdCuentasData && convencionesData) verificarMatchesBanco();
+            function loadConfig() {
+                try {
+                    const raw = localStorage.getItem(LS_KEY);
+                    if (!raw) return;
+                    const cfg = JSON.parse(raw);
+                    if (cfg.perfil) setPerfil(cfg.perfil);
+                    if (cfg.valorAM !== undefined) document.getElementById('valorAgenteMotor').value = cfg.valorAM;
+                    if (cfg.retencion) document.getElementById('retencion').value = cfg.retencion;
+                    if (cfg.iva) document.getElementById('iva').value = cfg.iva;
+                    if (cfg.nitPagador) document.getElementById('nitPagador').value = cfg.nitPagador;
+                    if (cfg.tipoPago) document.getElementById('tipoPago').value = cfg.tipoPago;
+                    if (cfg.aplicacion) document.getElementById('aplicacion').value = cfg.aplicacion;
+                    if (cfg.secuencia) document.getElementById('secuencia').value = cfg.secuencia;
+                    if (cfg.cuentaDebitar) document.getElementById('cuentaDebitar').value = cfg.cuentaDebitar;
+                    if (cfg.tipoCuentaDebitar) document.getElementById('tipoCuentaDebitar').value = cfg.tipoCuentaDebitar;
+                    if (cfg.descripcionPago) document.getElementById('descripcionPago').value = cfg.descripcionPago;
+                } catch (_) { }
             }
-
-            if (errors.length > 0) {
-                alert(`Errores al procesar ${errors.length} archivos:\n\n${errors.map(e => `• ${e.file}: ${e.error}`).join('\n')}`);
-            }
-
-            setTimeout(() => overlay.classList.remove('active'), 500);
-        }
-
-        function updateResultsTable() {
-            const tbody = document.getElementById('resultsTableBody');
-            tbody.innerHTML = processedData.map(p => `
-                <tr>
-                    <td class="td-name">${p.ejecutivo}</td>
-                    <td class="td-num">$${p.subtotal_original.toLocaleString('en')}</td>
-                    <td class="td-num orange">${p.agenteMotorDescuento > 0 ? `-$${p.agenteMotorDescuento.toLocaleString('en')}` : '—'}</td>
-                    <td class="td-num green">$${(p.isJuridico ? p.total_a_pagar : p.total_comision).toLocaleString('en')}</td>
-                </tr>
-            `).join('');
-        }
-
-        function updateResultsTableDrawer() {
-            const tbody = document.getElementById('resultsTableBodyDrawer');
-            if (!tbody) return;
-            tbody.innerHTML = processedData.map(p => `
-                <tr>
-                    <td style="font-weight:500;">${p.ejecutivo}</td>
-                    <td style="color:var(--muted);font-size:0.65em;">${p.fileName}</td>
-                    <td class="td-num">$${p.subtotal_original.toLocaleString('en')}</td>
-                    <td class="td-num orange">${p.agenteMotorDescuento > 0 ? `-$${p.agenteMotorDescuento.toLocaleString('en')} (${p.agenteMotorCount})` : '—'}</td>
-                    <td class="td-num">$${p.total_comision.toLocaleString('en')}</td>
-                    <td class="td-num green">$${(p.isJuridico ? p.total_a_pagar : p.total_comision).toLocaleString('en')}</td>
-                </tr>
-            `).join('');
-        }
-
-        // ============================================================================
-        // AGENTEMOTOR
-        // ============================================================================
-        document.getElementById('agenteMotorInput').addEventListener('change', async (e) => {
-            const file = e.target.files[0];
-            if (!file) return;
-
-            agenteMotorFile = file;
-            document.getElementById('agenteMotorText').textContent = `✅ ${file.name}`;
-            document.getElementById('agenteMotorText').className = 's-file-label loaded';
-            document.getElementById('agenteMotorStatus').textContent = '⏳ Procesando...';
-            document.getElementById('agenteMotorStatus').className = 'agente-status pending';
-
-            try {
-                const buff = await file.arrayBuffer();
-                const workbook = XLSX.read(buff, { type: 'array' });
-                const ws = workbook.Sheets[workbook.SheetNames[0]];
-                const jsonData = XLSX.utils.sheet_to_json(ws, { header: 1, defval: "" });
-
-                let asesorColIdx = -1;
-                const headerRow = jsonData[0];
-                for (let i = 0; i < headerRow.length; i++) {
-                    if (String(headerRow[i]).trim().toLowerCase().includes('asesor')) { asesorColIdx = i; break; }
-                }
-
-                if (asesorColIdx === -1) throw new Error('No se encontró la columna "Asesor"');
-
-                agenteMotorData = {};
-                for (let i = 1; i < jsonData.length; i++) {
-                    const nombre = String(jsonData[i][asesorColIdx] || '').trim();
-                    if (nombre) agenteMotorData[nombre] = (agenteMotorData[nombre] || 0) + 1;
-                }
-
-                const valorUnitario = parseFloat(document.getElementById('valorAgenteMotor').value) || 0;
-                let summaryHTML = '';
-                for (const [nombre, count] of Object.entries(agenteMotorData)) {
-                    const desc = count * valorUnitario;
-                    summaryHTML += `
-                        <div class="agente-item">
-                            <span>${nombre}</span>
-                            <span><strong>${count} uds</strong> = -$${desc.toLocaleString('en')}</span>
-                        </div>`;
-                }
-
-                document.getElementById('agenteMotorList').innerHTML = summaryHTML;
-                document.getElementById('agenteMotorSummary').classList.remove('hide');
-                document.getElementById('agenteMotorStatus').innerHTML = `✅ ${Object.keys(agenteMotorData).length} asesores`;
-                document.getElementById('agenteMotorStatus').className = 'agente-status ok';
-                document.getElementById('btnRecalcular').disabled = false;
-                document.getElementById('agenteMotorPanel').classList.add('open');
-
-            } catch (err) {
-                document.getElementById('agenteMotorStatus').textContent = `❌ ${err.message}`;
-                document.getElementById('agenteMotorStatus').className = 'agente-status pending';
-                agenteMotorData = null;
-            }
-        });
-
-        function normalizarTexto(txt) {
-            return String(txt).normalize("NFD").replace(/[\u0300-\u036f]/g, "").toUpperCase().trim();
-        }
-
-        function encontrarMejorCoincidencia(nombreEjecutivo, agenteData) {
-            const normExec = normalizarTexto(nombreEjecutivo);
-            const nombresAgentes = Object.keys(agenteData);
-
-            for (const nombre of nombresAgentes) {
-                if (normalizarTexto(nombre) === normExec) return nombre;
-            }
-            for (const nombre of nombresAgentes) {
-                const normNombre = normalizarTexto(nombre);
-                if (normNombre.includes(normExec) || normExec.includes(normNombre)) return nombre;
-            }
-            const palabrasExec = normExec.split(/\s+/);
-            for (const nombre of nombresAgentes) {
-                const palabrasNombre = normalizarTexto(nombre).split(/\s+/);
-                let coincidencias = 0;
-                for (const p of palabrasExec) {
-                    if (p.length > 3 && palabrasNombre.some(pn => pn.includes(p) || p.includes(pn))) coincidencias++;
-                }
-                if (coincidencias >= 2 || (palabrasExec.length === 1 && coincidencias === 1)) return nombre;
-            }
-            return null;
-        }
-
-        function recalcularConAgenteMotor() {
-            if (!agenteMotorData || processedData.length === 0) return;
-
-            const valorUnitario = parseFloat(document.getElementById('valorAgenteMotor').value) || 0;
-            const isJuridico = document.querySelector('input[name="perfil"]:checked').value === 'Jurídico';
-            const retPct = parseFloat(document.getElementById('retencion').value) / 100 || 0;
-            const ivaPct = parseFloat(document.getElementById('iva').value) / 100 || 0;
-            let noEncontrados = [];
-
-            processedData.forEach(p => {
-                const match = encontrarMejorCoincidencia(p.ejecutivo, agenteMotorData);
-                const count = match ? agenteMotorData[match] : 0;
-                if (!match) noEncontrados.push(p.ejecutivo);
-
-                const descuento = count * valorUnitario;
-                const subtotalAjustado = Math.max(0, p.subtotal_original - descuento);
-                let retencion_val = 0, iva_val = 0, total_a_pagar = subtotalAjustado;
-                if (isJuridico) {
-                    retencion_val = subtotalAjustado * retPct;
-                    iva_val = subtotalAjustado * ivaPct;
-                    total_a_pagar = subtotalAjustado - retencion_val + iva_val;
-                }
-                p.agenteMotorCount = count;
-                p.agenteMotorDescuento = Math.round(descuento);
-                p.total_comision = Math.round(subtotalAjustado);
-                p.retencion_val = Math.round(retencion_val);
-                p.iva_val = Math.round(iva_val);
-                p.total_a_pagar = Math.round(total_a_pagar);
+            // Auto-save config on any input change
+            document.querySelectorAll('.mini-input, .d-input-group input').forEach(el => {
+                el.addEventListener('change', saveConfig);
             });
 
-            updateResultsTable();
-            updateMetrics();
-
-            if (noEncontrados.length > 0) {
-                alert(`⚠️ No encontrados en AgenteMotor (0 descuento):\n\n${noEncontrados.join('\n')}`);
-            } else {
-                alert('✅ Cálculos actualizados con descuentos AgenteMotor');
+            // ──────────────────────────────────────────────
+            // MOBILE SIDEBAR
+            // ──────────────────────────────────────────────
+            function toggleSidebar() {
+                document.getElementById('mainSidebar').classList.toggle('open');
+                document.getElementById('sidebarBackdrop').classList.toggle('open');
             }
-        }
+            function closeSidebar() {
+                document.getElementById('mainSidebar').classList.remove('open');
+                document.getElementById('sidebarBackdrop').classList.remove('open');
+            }
 
-        // ============================================================================
-        // TABS (results drawer)
-        // ============================================================================
-        function switchTab(num) {
-            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-            document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
-            document.querySelectorAll('.tab')[num - 1].classList.add('active');
-            document.getElementById(`tab${num}`).classList.add('active');
-        }
+            // ──────────────────────────────────────────────
+            // PERFIL TOGGLE
+            // ──────────────────────────────────────────────
+            function setPerfil(val) {
+                document.getElementById('perfilNatural').checked = val === 'Natural';
+                document.getElementById('perfilJuridico').checked = val === 'Jurídico';
+                document.getElementById('btnNatural').classList.toggle('active', val === 'Natural');
+                document.getElementById('btnJuridico').classList.toggle('active', val === 'Jurídico');
+                document.getElementById('btnNatural').setAttribute('aria-pressed', val === 'Natural');
+                document.getElementById('btnJuridico').setAttribute('aria-pressed', val === 'Jurídico');
+                const fp = document.getElementById('fiscalParams');
+                fp.classList.toggle('disabled', val !== 'Jurídico');
+                saveConfig();
+            }
 
-        function scrollToBancoSection() { closeBancoDrawer(); openBancoDrawer(); }
+            // ──────────────────────────────────────────────
+            // DRAWER / PANEL HELPERS
+            // ──────────────────────────────────────────────
+            function openBancoDrawer() { document.getElementById('bancoDrawer').classList.add('open'); }
+            function closeBancoDrawer() { document.getElementById('bancoDrawer').classList.remove('open'); }
+            function openResultsDrawer() { document.getElementById('resultsDrawer').classList.add('open'); updateResultsTableDrawer(); }
+            function closeResultsDrawer() { document.getElementById('resultsDrawer').classList.remove('open'); }
+            function closeAgentePanel() { document.getElementById('agenteMotorPanel').classList.remove('open'); }
 
-        // ============================================================================
-        // BANCO MODULE — BD CUENTAS (sidebar input mirrors drawer)
-        // ============================================================================
-        async function processBDCuentas(file, textEl, statusEl) {
-            textEl.textContent = `✅ ${file.name}`;
-            textEl.className = textEl.classList.contains('s-file-label') ? 's-file-label loaded' : 'tmpl-drop-label loaded';
-            statusEl.textContent = '⏳ Procesando BD...';
-            statusEl.className = statusEl.className.replace('ready', 'pending');
+            // Escape key closes open drawers/panels
+            document.addEventListener('keydown', e => {
+                if (e.key !== 'Escape') return;
+                closeBancoDrawer(); closeResultsDrawer(); closeAgentePanel(); closeSidebar();
+            });
 
-            try {
-                const buff = await file.arrayBuffer();
-                const workbook = XLSX.read(buff, { type: 'array' });
-                const ws = workbook.Sheets[workbook.SheetNames[0]];
-                const jsonData = XLSX.utils.sheet_to_json(ws, { header: 1, defval: "" });
+            // ──────────────────────────────────────────────
+            // FILE DRAG & DROP
+            // ──────────────────────────────────────────────
+            const dropZone = document.getElementById('dropZone');
+            const fileInput = document.getElementById('fileInput');
 
-                const headerRow = jsonData[0];
-                const colMap = {};
-                const expectedCols = ['Tipo Documento Beneficiario', 'Nit Beneficiario', 'Nombre Beneficiario', 'Tipo Transaccion', 'Código Banco', 'No Cuenta Beneficiario'];
+            ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(ev => dropZone.addEventListener(ev, e => { e.preventDefault(); e.stopPropagation(); }));
+            ['dragenter', 'dragover'].forEach(ev => dropZone.addEventListener(ev, () => dropZone.classList.add('dragover')));
+            ['dragleave', 'drop'].forEach(ev => dropZone.addEventListener(ev, () => dropZone.classList.remove('dragover')));
+            dropZone.addEventListener('drop', e => handleFiles(e.dataTransfer.files));
+            fileInput.addEventListener('change', e => handleFiles(e.target.files));
 
-                headerRow.forEach((col, idx) => {
-                    const colName = String(col).trim();
-                    expectedCols.forEach(exp => {
-                        if (colName.toLowerCase().includes(exp.toLowerCase()) || normalizarTexto(colName).includes(normalizarTexto(exp)))
-                            colMap[exp] = idx;
-                    });
-                });
+            function handleFiles(files) {
+                const newFiles = Array.from(files).filter(f => f.name.toLowerCase().endsWith('.xml'));
+                if (newFiles.length === 0) { toast('Solo se aceptan archivos .xml', 'warning'); return; }
+                _state.selectedFiles = [..._state.selectedFiles, ...newFiles];
+                updateFileList();
+            }
+            function updateFileList() {
+                const chipsList = document.getElementById('chipsList');
+                const empty = document.getElementById('chipsEmpty');
+                const badge = document.getElementById('chipsCountBadge');
+                badge.textContent = _state.selectedFiles.length;
+                if (_state.selectedFiles.length > 0) {
+                    empty.classList.add('hide');
+                    chipsList.innerHTML = _state.selectedFiles.map((f, i) => `
+                <div class="chip">◬ ${f.name.replace('.xml', '')}
+                    <button class="chip-remove" onclick="App.removeFile(${i})" aria-label="Eliminar ${f.name}">✕</button>
+                </div>`).join('');
+                } else {
+                    empty.classList.remove('hide');
+                    chipsList.innerHTML = '';
+                }
+            }
+            function removeFile(index) { _state.selectedFiles.splice(index, 1); updateFileList(); }
+            function clearFiles() { _state.selectedFiles = []; fileInput.value = ''; updateFileList(); }
 
-                if (!colMap['Nombre Beneficiario'] || !colMap['No Cuenta Beneficiario'])
-                    throw new Error('Columnas requeridas no encontradas');
+            function resetApp() {
+                clearFiles();
+                _state.processedData = [];
+                _state.agenteMotorData = null;
+                _state.agenteMotorFile = null;
+                _state.bdCuentasData = null;
+                _state.convencionesData = null;
+                _state.bancoMatches = [];
 
-                bdCuentasData = [];
-                for (let i = 1; i < jsonData.length; i++) {
-                    const row = jsonData[i];
-                    if (!row[colMap['Nombre Beneficiario']]) continue;
-                    bdCuentasData.push({
-                        tipoDoc: row[colMap['Tipo Documento Beneficiario']] || '1',
-                        nit: row[colMap['Nit Beneficiario']] || '',
-                        nombre: String(row[colMap['Nombre Beneficiario']]).trim(),
-                        tipoTrans: row[colMap['Tipo Transaccion']] || '37',
-                        codigoBanco: row[colMap['Código Banco']] || '1007',
-                        cuenta: String(row[colMap['No Cuenta Beneficiario']] || '').trim()
-                    });
+                document.getElementById('agenteMotorInput').value = '';
+                document.getElementById('agenteMotorText').textContent = '📁 Cargar archivo';
+                document.getElementById('agenteMotorText').className = 's-file-label';
+                document.getElementById('agenteMotorStatus').textContent = '⏳ Esperando archivo...';
+                document.getElementById('agenteMotorStatus').className = 'agente-status pending';
+                document.getElementById('agenteMotorSummary').classList.add('hide');
+                document.getElementById('btnRecalcular').disabled = true;
+                document.getElementById('agenteMotorPanel').classList.remove('open');
+
+                ['bdCuentasInput', 'convencionesInput'].forEach(id => document.getElementById(id).value = '');
+                document.getElementById('bdCuentasText').textContent = '🗂 BD Cuentas';
+                document.getElementById('bdCuentasText').className = 's-file-label';
+                document.getElementById('bdCuentasStatus').textContent = '⏳ Esperando BD...';
+                document.getElementById('bdCuentasStatus').className = 'banco-status pending';
+                document.getElementById('convencionesText').textContent = '📋 Convenciones';
+                document.getElementById('convencionesText').className = 's-file-label';
+                document.getElementById('convencionesStatus').textContent = '⏳ Esperando convenciones...';
+                document.getElementById('convencionesStatus').className = 'banco-status pending';
+                document.getElementById('bancoMatchSummary').classList.add('hide');
+                document.getElementById('btnGenerarBanco').disabled = true;
+                document.getElementById('btnVerificarBanco').disabled = true;
+
+                document.getElementById('emptyState').classList.remove('hide');
+                document.getElementById('mainTable').classList.add('hide');
+                document.getElementById('resultsTableBody').innerHTML = '';
+                document.getElementById('btnZip').disabled = true;
+                document.getElementById('btnConsol').disabled = true;
+
+                updateMetrics();
+                updateHeaderBadge();
+                toast('Jornada reiniciada exitosamente.', 'success');
+            }
+
+            // ──────────────────────────────────────────────
+            // METRICS
+            // ──────────────────────────────────────────────
+            function fmt(n) { return '$' + Math.round(n).toLocaleString('en-US'); }
+            function updateMetrics() {
+                const pd = _state.processedData;
+                document.getElementById('valProcessed').textContent = pd.length;
+                document.getElementById('valBruto').textContent = fmt(pd.reduce((s, p) => s + p.subtotal_original, 0));
+                document.getElementById('valDesc').textContent = fmt(pd.reduce((s, p) => s + p.agenteMotorDescuento, 0));
+                document.getElementById('valTotal').textContent = fmt(pd.reduce((s, p) => s + p.total_a_pagar, 0));
+            }
+            function updateHeaderBadge() {
+                const badge = document.getElementById('headerBadge');
+                if (_state.processedData.length > 0) {
+                    badge.textContent = `✅ ${_state.processedData.length} liquidaciones`;
+                    badge.className = 'header-badge ready';
+                } else {
+                    badge.textContent = '⏳ Esperando archivos';
+                    badge.className = 'header-badge';
+                }
+            }
+
+            // ──────────────────────────────────────────────
+            // PARSE NUMERIC — ahora retorna NaN explícito para validación
+            // ──────────────────────────────────────────────
+            function parseNumeric(val) {
+                if (val === null || val === undefined || val === '') return 0;
+                let s = String(val).trim().replace('$', '').replace(/ /g, '').replace(/\xa0/g, '');
+                if (s.includes(',') && s.includes('.')) {
+                    if (s.lastIndexOf(',') > s.lastIndexOf('.')) s = s.replace(/\./g, '').replace(/,/g, '.');
+                    else s = s.replace(/,/g, '');
+                } else if (s.includes(',')) {
+                    s = s.replace(/,/g, '.');
+                }
+                const result = parseFloat(s);
+                return isNaN(result) ? 0 : result;
+            }
+
+            // ──────────────────────────────────────────────
+            // SAFE FINANCIAL VALUE — lanza error si el campo es crítico y está vacío
+            // ──────────────────────────────────────────────
+            function safeFinancialVal(val, fieldName) {
+                const parsed = parseNumeric(val);
+                if (isNaN(parsed)) throw new Error(`Valor financiero inválido en campo "${fieldName}": "${val}"`);
+                return parsed;
+            }
+
+            // ──────────────────────────────────────────────
+            // PROCESS FILES
+            // ──────────────────────────────────────────────
+            async function processFiles() {
+                if (_state.selectedFiles.length === 0) { toast('Carga al menos un archivo XML primero.', 'warning'); return; }
+
+                const isJuridico = document.querySelector('input[name="perfil"]:checked').value === 'Jurídico';
+                const retPct = parseNumeric(document.getElementById('retencion').value) / 100;
+                const ivaPct = parseNumeric(document.getElementById('iva').value) / 100;
+
+                const overlay = document.getElementById('loadingOverlay');
+                const progressFill = document.getElementById('loadingProgress');
+                const overlayText = document.getElementById('loadingText');
+                overlay.classList.add('active');
+
+                const oldNames = _state.processedData.map(p => p.fileName);
+                const filesToProcess = _state.selectedFiles.filter(f => !oldNames.includes(f.name));
+                const localErrors = [];
+
+                if (filesToProcess.length === 0) {
+                    overlay.classList.remove('active');
+                    toast('Todos los archivos cargados ya fueron procesados. Limpia la lista para reprocesar.', 'warning');
+                    return;
                 }
 
-                statusEl.innerHTML = `✅ ${bdCuentasData.length} cuentas`;
-                statusEl.className = statusEl.className.replace('pending', 'ready');
-                checkBancoReady();
+                const parser = new DOMParser();
 
-            } catch (err) {
-                statusEl.textContent = `❌ ${err.message}`;
-                bdCuentasData = null;
-                console.error(err);
-            }
-        }
+                for (let i = 0; i < filesToProcess.length; i++) {
+                    const file = filesToProcess[i];
+                    progressFill.style.width = `${((i + 1) / filesToProcess.length) * 100}%`;
+                    overlayText.textContent = `Procesando ${i + 1}/${filesToProcess.length}: ${file.name}`;
 
-        document.getElementById('bdCuentasInput').addEventListener('change', async (e) => {
-            const file = e.target.files[0];
-            if (!file) return;
-            await processBDCuentas(file,
-                document.getElementById('bdCuentasText'),
-                document.getElementById('bdCuentasStatus')
-            );
-        });
+                    try {
+                        const text = await file.text();
+                        const doc = parser.parseFromString(text, 'text/html');
+                        const allRows = Array.from(doc.getElementsByTagName('*')).filter(el => el.nodeName.toLowerCase().endsWith('row'));
 
-        document.getElementById('bdCuentasInputDrawer')?.addEventListener('change', async (e) => {
-            const file = e.target.files[0];
-            if (!file) return;
-            await processBDCuentas(file,
-                document.getElementById('bdCuentasTextDrawer'),
-                document.getElementById('bdCuentasStatusDrawer')
-            );
-            // sync sidebar
-            document.getElementById('bdCuentasText').textContent = `✅ ${file.name}`;
-            document.getElementById('bdCuentasText').className = 's-file-label loaded';
-        });
+                        if (allRows.length < 2) throw new Error('XML sin datos suficientes o formato no soportado');
 
-        // ============================================================================
-        // BANCO MODULE — CONVENCIONES
-        // ============================================================================
-        async function processConvenciones(file, textEl, statusEl) {
-            textEl.textContent = `✅ ${file.name}`;
-            textEl.className = textEl.classList.contains('s-file-label') ? 's-file-label loaded' : 'tmpl-drop-label loaded';
-            statusEl.textContent = '⏳ Procesando convenciones...';
-            statusEl.className = statusEl.className.replace('ready', 'pending');
+                        let n_liq = 'N/A', ejecutivo = 'Desconocido', fecha_liq = '';
+                        let startIndex = -1;
 
-            try {
-                const buff = await file.arrayBuffer();
-                const workbook = XLSX.read(buff, { type: 'array' });
+                        const extractText = (node) => Array.from(node.getElementsByTagName('*'))
+                            .filter(el => el.nodeName.toLowerCase().endsWith('data'))
+                            .map(d => d.textContent.trim());
 
-                convencionesData = { bancos: {}, tipoDoc: {}, tipoTrans: {} };
+                        allRows.forEach((row, idx) => {
+                            const cellData = extractText(row);
+                            const joined = cellData.join(' ');
+                            cellData.forEach(c => {
+                                if (c.includes('Liquidación N°')) n_liq = c;
+                                else if (c.includes('Ejecutivo:')) ejecutivo = c.replace('Ejecutivo:', '').trim();
+                                else if (c.includes('Comisiones al')) fecha_liq = c.split('al')[1]?.trim() || fecha_liq;
+                            });
+                            if (joined.includes('Aseguradora') && startIndex === -1) startIndex = idx;
+                        });
 
-                workbook.SheetNames.forEach(sheetName => {
-                    const ws = workbook.Sheets[sheetName];
-                    const jsonData = XLSX.utils.sheet_to_json(ws, { header: 1, defval: "" });
-                    const firstRow = jsonData[0] || [];
+                        if (startIndex === -1) throw new Error('No se encontró la cabecera de datos (Aseguradora)');
 
-                    if (sheetName.toLowerCase().includes('banco') || firstRow.includes('BANCO')) {
-                        for (let i = 1; i < jsonData.length; i++) {
-                            const row = jsonData[i];
-                            if (row[0] && row[1]) convencionesData.bancos[String(row[0]).trim().toUpperCase()] = String(row[1]).trim();
+                        const headers = extractText(allRows[startIndex]).slice(0, 13);
+                        const tableData = [];
+                        for (let r = startIndex + 1; r < allRows.length; r++) {
+                            const cells = extractText(allRows[r]);
+                            if (cells.length > 0) tableData.push(cells.slice(0, 13));
                         }
-                    } else if (firstRow.includes('Tipo Documento Beneficiario') || firstRow.includes('Cedula')) {
-                        for (let i = 1; i < jsonData.length; i++) {
-                            const row = jsonData[i];
-                            if (row[0] && row[1]) convencionesData.tipoDoc[String(row[0]).trim().toUpperCase()] = String(row[1]).trim();
+
+                        let total_comision = 0;
+                        const cleanTableData = [];
+                        tableData.forEach(rowArr => {
+                            const rawVal = rowArr[rowArr.length - 1];
+                            const val = parseNumeric(rawVal);
+                            // Validación: advertir si el último campo no parece un número
+                            if (rawVal !== '' && rawVal !== undefined && isNaN(parseFloat(String(rawVal).replace(/[$,. ]/g, '')))) {
+                                console.warn(`[${file.name}] Valor sospechoso en columna final: "${rawVal}"`);
+                            }
+                            if (val !== 0) { total_comision += val; cleanTableData.push({ row: rowArr, comision: val }); }
+                        });
+
+                        if (cleanTableData.length === 0) throw new Error('No se encontraron comisiones pagables');
+
+                        const subtotal_original = total_comision;
+                        let agenteMotorCount = 0;
+                        let agenteMotorDescuento = 0;
+                        let total_comision_ajustada = subtotal_original;
+                        let retencion_val = 0, iva_val = 0, total_a_pagar = total_comision_ajustada;
+
+                        if (isJuridico) {
+                            retencion_val = total_comision_ajustada * retPct;
+                            iva_val = total_comision_ajustada * ivaPct;
+                            total_a_pagar = total_comision_ajustada - retencion_val + iva_val;
                         }
-                    } else if (firstRow.includes('Tipo Transaccion') || firstRow.includes('Pre-notificacion')) {
-                        for (let i = 1; i < jsonData.length; i++) {
-                            const row = jsonData[i];
-                            if (row[0] && row[1]) convencionesData.tipoTrans[String(row[0]).trim().toUpperCase()] = String(row[1]).trim();
-                        }
+
+                        const safeName = ejecutivo.replace(/[^\w\s-]/gi, '').trim().replace(/ /g, '_') || 'Sin_Nombre';
+
+                        _state.processedData.push({
+                            fileName: file.name,
+                            safeName: `Liq_${safeName}.xlsx`,
+                            n_liq, ejecutivo, fecha_liq,
+                            headers: headers.slice(0, 13),
+                            rows: cleanTableData,
+                            isJuridico,
+                            subtotal_original: Math.round(subtotal_original),
+                            agenteMotorCount,
+                            agenteMotorDescuento: Math.round(agenteMotorDescuento),
+                            total_comision: Math.round(total_comision_ajustada),
+                            retencion_pct: isJuridico ? retPct * 100 : 0,
+                            retencion_val: Math.round(retencion_val),
+                            iva_pct: isJuridico ? ivaPct * 100 : 0,
+                            iva_val: Math.round(iva_val),
+                            total_a_pagar: Math.round(total_a_pagar),
+                        });
+
+                    } catch (err) {
+                        localErrors.push({ file: file.name, error: err.message });
                     }
+                }
+
+                updateMetrics();
+                updateHeaderBadge();
+
+                if (_state.processedData.length > 0) {
+                    updateResultsTable();
+                    document.getElementById('emptyState').classList.add('hide');
+                    document.getElementById('mainTable').classList.remove('hide');
+                    document.getElementById('btnZip').disabled = false;
+                    document.getElementById('btnConsol').disabled = false;
+                    document.getElementById('agenteMotorPanel').classList.add('open');
+                    if (_state.bdCuentasData && _state.convencionesData) verificarMatchesBanco();
+                }
+
+                setTimeout(() => overlay.classList.remove('active'), 500);
+
+                if (localErrors.length > 0) {
+                    toast(`Errores al procesar ${localErrors.length} archivo(s):\n${localErrors.map(e => `• ${e.file}: ${e.error}`).join('\n')}`, 'error', 8000);
+                } else {
+                    toast(`✅ ${filesToProcess.length} archivo(s) procesados correctamente.`, 'success');
+                }
+            }
+
+            function updateResultsTable() {
+                document.getElementById('resultsTableBody').innerHTML = _state.processedData.map(p => `
+            <tr>
+                <td class="td-name">${p.ejecutivo}</td>
+                <td class="td-num">$${p.subtotal_original.toLocaleString('en')}</td>
+                <td class="td-num orange">${p.agenteMotorDescuento > 0 ? `-$${p.agenteMotorDescuento.toLocaleString('en')}` : '—'}</td>
+                <td class="td-num green">$${(p.isJuridico ? p.total_a_pagar : p.total_comision).toLocaleString('en')}</td>
+            </tr>`).join('');
+            }
+
+            function updateResultsTableDrawer() {
+                const tbody = document.getElementById('resultsTableBodyDrawer');
+                if (!tbody) return;
+                tbody.innerHTML = _state.processedData.map(p => `
+            <tr>
+                <td style="font-weight:500;">${p.ejecutivo}</td>
+                <td style="color:var(--muted);font-size:0.65em;">${p.fileName}</td>
+                <td class="td-num">$${p.subtotal_original.toLocaleString('en')}</td>
+                <td class="td-num orange">${p.agenteMotorDescuento > 0 ? `-$${p.agenteMotorDescuento.toLocaleString('en')} (${p.agenteMotorCount})` : '—'}</td>
+                <td class="td-num">$${p.total_comision.toLocaleString('en')}</td>
+                <td class="td-num green">$${(p.isJuridico ? p.total_a_pagar : p.total_comision).toLocaleString('en')}</td>
+            </tr>`).join('');
+            }
+
+            // ──────────────────────────────────────────────
+            // AGENTEMOTOR
+            // ──────────────────────────────────────────────
+            document.getElementById('agenteMotorInput').addEventListener('change', async (e) => {
+                const file = e.target.files[0];
+                if (!file) return;
+                _state.agenteMotorFile = file;
+                const textEl = document.getElementById('agenteMotorText');
+                const statusEl = document.getElementById('agenteMotorStatus');
+                textEl.textContent = `✅ ${file.name}`;
+                textEl.className = 's-file-label loaded';
+                statusEl.textContent = '⏳ Procesando...';
+                statusEl.className = 'agente-status pending';
+
+                try {
+                    const buff = await file.arrayBuffer();
+                    const workbook = XLSX.read(buff, { type: 'array' });
+                    const ws = workbook.Sheets[workbook.SheetNames[0]];
+                    const jsonData = XLSX.utils.sheet_to_json(ws, { header: 1, defval: '' });
+                    const headerRow = jsonData[0] || [];
+
+                    let asesorColIdx = -1;
+                    for (let i = 0; i < headerRow.length; i++) {
+                        if (String(headerRow[i]).trim().toLowerCase().includes('asesor')) { asesorColIdx = i; break; }
+                    }
+                    if (asesorColIdx === -1) throw new Error('No se encontró la columna "Asesor"');
+
+                    _state.agenteMotorData = {};
+                    for (let i = 1; i < jsonData.length; i++) {
+                        const nombre = String(jsonData[i][asesorColIdx] || '').trim();
+                        if (nombre) _state.agenteMotorData[nombre] = (_state.agenteMotorData[nombre] || 0) + 1;
+                    }
+
+                    const valorUnitario = parseNumeric(document.getElementById('valorAgenteMotor').value);
+                    let summaryHTML = '';
+                    for (const [nombre, count] of Object.entries(_state.agenteMotorData)) {
+                        const desc = count * valorUnitario;
+                        summaryHTML += `<div class="agente-item"><span>${nombre}</span><span><strong>${count} uds</strong> = -$${desc.toLocaleString('en')}</span></div>`;
+                    }
+
+                    document.getElementById('agenteMotorList').innerHTML = summaryHTML;
+                    document.getElementById('agenteMotorSummary').classList.remove('hide');
+                    statusEl.innerHTML = `✅ ${Object.keys(_state.agenteMotorData).length} asesores`;
+                    statusEl.className = 'agente-status ok';
+                    document.getElementById('btnRecalcular').disabled = false;
+                    document.getElementById('agenteMotorPanel').classList.add('open');
+
+                } catch (err) {
+                    statusEl.textContent = `❌ ${err.message}`;
+                    statusEl.className = 'agente-status pending';
+                    _state.agenteMotorData = null;
+                    toast(`Error al cargar AgenteMotor: ${err.message}`, 'error');
+                }
+            });
+
+            function normalizarTexto(txt) {
+                return String(txt).normalize('NFD').replace(/[\u0300-\u036f]/g, '').toUpperCase().trim();
+            }
+
+            function encontrarMejorCoincidencia(nombreEjecutivo, agenteData) {
+                const normExec = normalizarTexto(nombreEjecutivo);
+                const nombresAgentes = Object.keys(agenteData);
+                // Exacto
+                for (const n of nombresAgentes) if (normalizarTexto(n) === normExec) return { nombre: n, score: 100 };
+                // Contiene
+                for (const n of nombresAgentes) {
+                    const nn = normalizarTexto(n);
+                    if (nn.includes(normExec) || normExec.includes(nn)) return { nombre: n, score: 80 };
+                }
+                // Por palabras (mínimo 2, o la única si hay 1)
+                const palabrasExec = normExec.split(/\s+/);
+                for (const n of nombresAgentes) {
+                    const palabrasN = normalizarTexto(n).split(/\s+/);
+                    let coin = 0;
+                    for (const p of palabrasExec) {
+                        if (p.length > 3 && palabrasN.some(pn => pn.includes(p) || p.includes(pn))) coin++;
+                    }
+                    if (coin >= 2 || (palabrasExec.length === 1 && coin === 1)) return { nombre: n, score: 60 };
+                }
+                return null;
+            }
+
+            function recalcularConAgenteMotor() {
+                if (!_state.agenteMotorData || _state.processedData.length === 0) return;
+
+                const valorUnitario = parseNumeric(document.getElementById('valorAgenteMotor').value);
+                const isJuridico = document.querySelector('input[name="perfil"]:checked').value === 'Jurídico';
+                const retPct = parseNumeric(document.getElementById('retencion').value) / 100;
+                const ivaPct = parseNumeric(document.getElementById('iva').value) / 100;
+                const noEncontrados = [];
+                const parciales = [];
+
+                _state.processedData.forEach(p => {
+                    const result = encontrarMejorCoincidencia(p.ejecutivo, _state.agenteMotorData);
+                    const count = result ? _state.agenteMotorData[result.nombre] : 0;
+                    if (!result) noEncontrados.push(p.ejecutivo);
+                    else if (result.score < 100) parciales.push(`${p.ejecutivo} → ${result.nombre} (${result.score}%)`);
+
+                    const descuento = count * valorUnitario;
+                    const subtotalAjustado = Math.max(0, p.subtotal_original - descuento);
+                    let retencion_val = 0, iva_val = 0, total_a_pagar = subtotalAjustado;
+                    if (isJuridico) {
+                        retencion_val = subtotalAjustado * retPct;
+                        iva_val = subtotalAjustado * ivaPct;
+                        total_a_pagar = subtotalAjustado - retencion_val + iva_val;
+                    }
+                    p.agenteMotorCount = count;
+                    p.agenteMotorDescuento = Math.round(descuento);
+                    p.total_comision = Math.round(subtotalAjustado);
+                    p.retencion_val = Math.round(retencion_val);
+                    p.iva_val = Math.round(iva_val);
+                    p.total_a_pagar = Math.round(total_a_pagar);
                 });
 
-                if (Object.keys(convencionesData.bancos).length === 0) {
+                updateResultsTable();
+                updateMetrics();
+
+                if (parciales.length > 0) {
+                    toast(`⚠️ Coincidencias parciales (verifica):\n${parciales.join('\n')}`, 'warning', 7000);
+                }
+                if (noEncontrados.length > 0) {
+                    toast(`⚠️ Sin AgenteMotor (descuento 0):\n${noEncontrados.join('\n')}`, 'warning', 6000);
+                } else {
+                    toast('✅ Cálculos actualizados con descuentos AgenteMotor', 'success');
+                }
+            }
+
+            // ──────────────────────────────────────────────
+            // TABS
+            // ──────────────────────────────────────────────
+            function switchTab(num) {
+                document.querySelectorAll('.tab').forEach((t, i) => {
+                    t.classList.toggle('active', i === num - 1);
+                    t.setAttribute('aria-selected', i === num - 1);
+                });
+                document.querySelectorAll('.tab-content').forEach((c, i) => c.classList.toggle('active', i === num - 1));
+            }
+
+            // ──────────────────────────────────────────────
+            // BANCO — BD CUENTAS (sidebar + drawer comparten lógica)
+            // ──────────────────────────────────────────────
+            async function processBDCuentas(file, textEl, statusEl) {
+                textEl.textContent = `✅ ${file.name}`;
+                textEl.className = textEl.classList.contains('s-file-label') ? 's-file-label loaded' : 'tmpl-drop-label loaded';
+                statusEl.textContent = '⏳ Procesando BD...';
+                statusEl.className = statusEl.className.replace('ready', 'pending');
+
+                try {
+                    const buff = await file.arrayBuffer();
+                    const workbook = XLSX.read(buff, { type: 'array' });
+                    const ws = workbook.Sheets[workbook.SheetNames[0]];
+                    const jsonData = XLSX.utils.sheet_to_json(ws, { header: 1, defval: '' });
+                    const headerRow = jsonData[0] || [];
+                    const colMap = {};
+                    const expectedCols = ['Tipo Documento Beneficiario', 'Nit Beneficiario', 'Nombre Beneficiario', 'Tipo Transaccion', 'Código Banco', 'No Cuenta Beneficiario'];
+                    headerRow.forEach((col, idx) => {
+                        const cn = String(col).trim();
+                        expectedCols.forEach(exp => {
+                            if (cn.toLowerCase().includes(exp.toLowerCase()) || normalizarTexto(cn).includes(normalizarTexto(exp))) colMap[exp] = idx;
+                        });
+                    });
+                    if (!colMap['Nombre Beneficiario'] || !colMap['No Cuenta Beneficiario']) throw new Error('Columnas requeridas no encontradas');
+
+                    _state.bdCuentasData = [];
+                    for (let i = 1; i < jsonData.length; i++) {
+                        const row = jsonData[i];
+                        if (!row[colMap['Nombre Beneficiario']]) continue;
+                        _state.bdCuentasData.push({
+                            tipoDoc: row[colMap['Tipo Documento Beneficiario']] || '1',
+                            nit: row[colMap['Nit Beneficiario']] || '',
+                            nombre: String(row[colMap['Nombre Beneficiario']]).trim(),
+                            tipoTrans: row[colMap['Tipo Transaccion']] || '37',
+                            codigoBanco: row[colMap['Código Banco']] || '1007',
+                            cuenta: String(row[colMap['No Cuenta Beneficiario']] || '').trim(),
+                        });
+                    }
+                    statusEl.innerHTML = `✅ ${_state.bdCuentasData.length} cuentas`;
+                    statusEl.className = statusEl.className.replace('pending', 'ready');
+                    checkBancoReady();
+                } catch (err) {
+                    statusEl.textContent = `❌ ${err.message}`;
+                    _state.bdCuentasData = null;
+                    toast(`Error BD Cuentas: ${err.message}`, 'error');
+                }
+            }
+
+            // Sincronización sidebar ↔ drawer (un solo handler, comparte lógica)
+            function syncBDCuentasSidebar(file) {
+                document.getElementById('bdCuentasText').textContent = `✅ ${file.name}`;
+                document.getElementById('bdCuentasText').className = 's-file-label loaded';
+                document.getElementById('bdCuentasStatus').textContent = `✅ cargado`;
+                document.getElementById('bdCuentasStatus').className = 'banco-status ready';
+            }
+            function syncConvencionesSidebar(file) {
+                document.getElementById('convencionesText').textContent = `✅ ${file.name}`;
+                document.getElementById('convencionesText').className = 's-file-label loaded';
+                document.getElementById('convencionesStatus').textContent = `✅ cargado`;
+                document.getElementById('convencionesStatus').className = 'banco-status ready';
+            }
+
+            document.getElementById('bdCuentasInput').addEventListener('change', async (e) => {
+                const file = e.target.files[0]; if (!file) return;
+                await processBDCuentas(file, document.getElementById('bdCuentasText'), document.getElementById('bdCuentasStatus'));
+            });
+            document.getElementById('bdCuentasInputDrawer')?.addEventListener('change', async (e) => {
+                const file = e.target.files[0]; if (!file) return;
+                await processBDCuentas(file, document.getElementById('bdCuentasTextDrawer'), document.getElementById('bdCuentasStatusDrawer'));
+                syncBDCuentasSidebar(file);
+            });
+
+            // ──────────────────────────────────────────────
+            // BANCO — CONVENCIONES
+            // ──────────────────────────────────────────────
+            async function processConvenciones(file, textEl, statusEl) {
+                textEl.textContent = `✅ ${file.name}`;
+                textEl.className = textEl.classList.contains('s-file-label') ? 's-file-label loaded' : 'tmpl-drop-label loaded';
+                statusEl.textContent = '⏳ Procesando convenciones...';
+                statusEl.className = statusEl.className.replace('ready', 'pending');
+
+                try {
+                    const buff = await file.arrayBuffer();
+                    const workbook = XLSX.read(buff, { type: 'array' });
+                    _state.convencionesData = { bancos: {}, tipoDoc: {}, tipoTrans: {} };
+
                     workbook.SheetNames.forEach(sheetName => {
                         const ws = workbook.Sheets[sheetName];
-                        const jsonData = XLSX.utils.sheet_to_json(ws, { header: 1, defval: "" });
-                        for (let i = 1; i < jsonData.length; i++) {
-                            const row = jsonData[i];
-                            if (row.length >= 2) {
-                                const v1 = String(row[0] || '').trim(), v2 = String(row[1] || '').trim();
-                                if (/^\d{4}$/.test(v2)) convencionesData.bancos[v1.toUpperCase()] = v2;
-                                else if (/^\d{1}$/.test(v2) && v1.length > 3) convencionesData.tipoDoc[v1.toUpperCase()] = v2;
+                        const jsonData = XLSX.utils.sheet_to_json(ws, { header: 1, defval: '' });
+                        const firstRow = jsonData[0] || [];
+
+                        if (sheetName.toLowerCase().includes('banco') || firstRow.includes('BANCO')) {
+                            for (let i = 1; i < jsonData.length; i++) {
+                                const row = jsonData[i];
+                                if (row[0] && row[1]) _state.convencionesData.bancos[String(row[0]).trim().toUpperCase()] = String(row[1]).trim();
+                            }
+                        } else if (firstRow.includes('Tipo Documento Beneficiario') || firstRow.includes('Cedula')) {
+                            for (let i = 1; i < jsonData.length; i++) {
+                                const row = jsonData[i];
+                                if (row[0] && row[1]) _state.convencionesData.tipoDoc[String(row[0]).trim().toUpperCase()] = String(row[1]).trim();
+                            }
+                        } else if (firstRow.includes('Tipo Transaccion') || firstRow.includes('Pre-notificacion')) {
+                            for (let i = 1; i < jsonData.length; i++) {
+                                const row = jsonData[i];
+                                if (row[0] && row[1]) _state.convencionesData.tipoTrans[String(row[0]).trim().toUpperCase()] = String(row[1]).trim();
                             }
                         }
                     });
+
+                    if (Object.keys(_state.convencionesData.bancos).length === 0) {
+                        workbook.SheetNames.forEach(sheetName => {
+                            const ws = workbook.Sheets[sheetName];
+                            const jsonData = XLSX.utils.sheet_to_json(ws, { header: 1, defval: '' });
+                            for (let i = 1; i < jsonData.length; i++) {
+                                const row = jsonData[i];
+                                if (row.length >= 2) {
+                                    const v1 = String(row[0] || '').trim(), v2 = String(row[1] || '').trim();
+                                    if (/^\d{4}$/.test(v2)) _state.convencionesData.bancos[v1.toUpperCase()] = v2;
+                                    else if (/^\d{1}$/.test(v2) && v1.length > 3) _state.convencionesData.tipoDoc[v1.toUpperCase()] = v2;
+                                }
+                            }
+                        });
+                    }
+
+                    statusEl.innerHTML = `✅ ${Object.keys(_state.convencionesData.bancos).length} bancos`;
+                    statusEl.className = statusEl.className.replace('pending', 'ready');
+                    checkBancoReady();
+                } catch (err) {
+                    statusEl.textContent = `❌ ${err.message}`;
+                    _state.convencionesData = null;
+                    toast(`Error Convenciones: ${err.message}`, 'error');
                 }
-
-                statusEl.innerHTML = `✅ ${Object.keys(convencionesData.bancos).length} bancos`;
-                statusEl.className = statusEl.className.replace('pending', 'ready');
-                checkBancoReady();
-
-            } catch (err) {
-                statusEl.textContent = `❌ ${err.message}`;
-                convencionesData = null;
-                console.error(err);
             }
-        }
 
-        document.getElementById('convencionesInput').addEventListener('change', async (e) => {
-            const file = e.target.files[0];
-            if (!file) return;
-            await processConvenciones(file,
-                document.getElementById('convencionesText'),
-                document.getElementById('convencionesStatus')
-            );
-        });
-
-        document.getElementById('convencionesInputDrawer')?.addEventListener('change', async (e) => {
-            const file = e.target.files[0];
-            if (!file) return;
-            await processConvenciones(file,
-                document.getElementById('convencionesTextDrawer'),
-                document.getElementById('convencionesStatusDrawer')
-            );
-            document.getElementById('convencionesText').textContent = `✅ ${file.name}`;
-            document.getElementById('convencionesText').className = 's-file-label loaded';
-        });
-
-        function checkBancoReady() {
-            const isReady = bdCuentasData && bdCuentasData.length > 0 && convencionesData;
-            document.getElementById('btnGenerarBanco').disabled = !isReady;
-            document.getElementById('btnVerificarBanco').disabled = !isReady;
-            if (isReady && processedData.length > 0) verificarMatchesBanco();
-        }
-
-        function verificarMatchesBanco() {
-            if (!bdCuentasData || processedData.length === 0) return;
-
-            bancoMatches = [];
-            const noEncontrados = [];
-
-            processedData.forEach(liq => {
-                const nombreLiq = normalizarTexto(liq.ejecutivo);
-                let match = null, matchScore = 0;
-
-                for (const cuenta of bdCuentasData) {
-                    const nombreCuenta = normalizarTexto(cuenta.nombre);
-                    if (nombreCuenta === nombreLiq) { match = cuenta; matchScore = 100; break; }
-                    if (nombreCuenta.includes(nombreLiq) || nombreLiq.includes(nombreCuenta)) { match = cuenta; matchScore = 80; break; }
-                    const palabrasLiq = nombreLiq.split(/\s+/).filter(p => p.length > 2);
-                    const palabrasCuenta = nombreCuenta.split(/\s+/).filter(p => p.length > 2);
-                    const coin = palabrasLiq.filter(p => palabrasCuenta.includes(p)).length;
-                    if (coin >= 2 && matchScore < 60) { match = cuenta; matchScore = 60; }
-                }
-
-                if (match) { const valorBanco = liq.isJuridico ? liq.total_a_pagar : liq.total_comision; bancoMatches.push({ ejecutivo: liq.ejecutivo, match, score: matchScore, valor: valorBanco }); }
-                else noEncontrados.push(liq.ejecutivo);
+            document.getElementById('convencionesInput').addEventListener('change', async (e) => {
+                const file = e.target.files[0]; if (!file) return;
+                await processConvenciones(file, document.getElementById('convencionesText'), document.getElementById('convencionesStatus'));
+            });
+            document.getElementById('convencionesInputDrawer')?.addEventListener('change', async (e) => {
+                const file = e.target.files[0]; if (!file) return;
+                await processConvenciones(file, document.getElementById('convencionesTextDrawer'), document.getElementById('convencionesStatusDrawer'));
+                syncConvencionesSidebar(file);
             });
 
-            const summaryDiv = document.getElementById('bancoMatchList');
-            let html = `
-                <div style="display:flex;justify-content:space-between;margin-bottom:0.8rem;padding:0.7rem;background:rgba(0,0,0,0.2);border-radius:7px;font-size:0.72rem;">
-                    <span>✅ Encontrados: <strong>${bancoMatches.length}</strong></span>
-                    <span>❌ No encontrados: <strong>${noEncontrados.length}</strong></span>
-                    <span style="color:var(--green);">$${bancoMatches.reduce((s, m) => s + m.valor, 0).toLocaleString('en')}</span>
-                </div>`;
+            function checkBancoReady() {
+                const isReady = !!(_state.bdCuentasData?.length) && !!_state.convencionesData;
+                document.getElementById('btnGenerarBanco').disabled = !isReady;
+                document.getElementById('btnVerificarBanco').disabled = !isReady;
+                if (isReady && _state.processedData.length > 0) verificarMatchesBanco();
+            }
 
-            if (bancoMatches.length > 0) {
-                html += `<div style="max-height:220px;overflow-y:auto;">`;
-                bancoMatches.forEach(m => {
-                    const scoreClass = m.score >= 80 ? 'match-success' : (m.score >= 60 ? 'match-partial' : 'match-error');
-                    html += `
-                        <div class="agente-item">
-                            <div>
-                                <div style="font-weight:500;font-size:0.72rem;">${m.ejecutivo}</div>
-                                <div style="font-size:0.65rem;color:var(--muted);">→ ${m.match.nombre} | ${m.match.cuenta}</div>
-                            </div>
-                            <div style="text-align:right;">
-                                <div style="font-weight:bold;color:var(--accent);font-size:0.72rem;">$${m.valor.toLocaleString('en')}</div>
-                                <span class="match-indicator ${scoreClass}">${m.score}%</span>
-                            </div>
-                        </div>`;
+            function verificarMatchesBanco() {
+                if (!_state.bdCuentasData || _state.processedData.length === 0) return;
+                _state.bancoMatches = [];
+                const noEncontrados = [];
+
+                _state.processedData.forEach(liq => {
+                    const nombreLiq = normalizarTexto(liq.ejecutivo);
+                    let match = null, matchScore = 0;
+
+                    for (const cuenta of _state.bdCuentasData) {
+                        const nombreCuenta = normalizarTexto(cuenta.nombre);
+                        if (nombreCuenta === nombreLiq) { match = cuenta; matchScore = 100; break; }
+                        if (nombreCuenta.includes(nombreLiq) || nombreLiq.includes(nombreCuenta)) { match = cuenta; matchScore = 80; break; }
+                        const palabrasLiq = nombreLiq.split(/\s+/).filter(p => p.length > 2);
+                        const palabrasCuenta = nombreCuenta.split(/\s+/).filter(p => p.length > 2);
+                        const coin = palabrasLiq.filter(p => palabrasCuenta.includes(p)).length;
+                        if (coin >= 2 && matchScore < 60) { match = cuenta; matchScore = 60; }
+                    }
+
+                    const valorBanco = liq.isJuridico ? liq.total_a_pagar : liq.total_comision;
+                    if (match) _state.bancoMatches.push({ ejecutivo: liq.ejecutivo, match, score: matchScore, valor: valorBanco });
+                    else noEncontrados.push(liq.ejecutivo);
                 });
-                html += `</div>`;
-            }
 
-            if (noEncontrados.length > 0) {
-                html += `<div style="margin-top:0.7rem;padding:0.7rem;background:rgba(255,71,87,0.08);border-radius:7px;border:1px solid rgba(255,71,87,0.2);">
-                    <div style="font-size:0.65rem;color:var(--red);margin-bottom:0.3rem;">⚠️ No encontrados en BD:</div>
-                    <p style="font-size:0.65rem;color:var(--muted);">${noEncontrados.join(', ')}</p>
+                const summaryDiv = document.getElementById('bancoMatchList');
+                let html = `<div style="display:flex;justify-content:space-between;margin-bottom:0.8rem;padding:0.7rem;background:rgba(0,0,0,0.2);border-radius:7px;font-size:0.72rem;">
+            <span>✅ Encontrados: <strong>${_state.bancoMatches.length}</strong></span>
+            <span>❌ No encontrados: <strong>${noEncontrados.length}</strong></span>
+            <span style="color:var(--green);">$${_state.bancoMatches.reduce((s, m) => s + m.valor, 0).toLocaleString('en')}</span>
+        </div>`;
+
+                if (_state.bancoMatches.length > 0) {
+                    html += `<div style="max-height:220px;overflow-y:auto;">`;
+                    _state.bancoMatches.forEach(m => {
+                        const scoreClass = m.score >= 80 ? 'match-success' : (m.score >= 60 ? 'match-partial' : 'match-error');
+                        html += `<div class="agente-item">
+                    <div>
+                        <div style="font-weight:500;font-size:0.72rem;">${m.ejecutivo}</div>
+                        <div style="font-size:0.65rem;color:var(--muted);">→ ${m.match.nombre} | ${m.match.cuenta}</div>
+                    </div>
+                    <div style="text-align:right;">
+                        <div style="font-weight:bold;color:var(--accent);font-size:0.72rem;">$${m.valor.toLocaleString('en')}</div>
+                        <span class="match-indicator ${scoreClass}">${m.score}%</span>
+                    </div>
                 </div>`;
-            }
-
-            summaryDiv.innerHTML = html;
-            document.getElementById('bancoMatchSummary').classList.remove('hide');
-            return { encontrados: bancoMatches, noEncontrados };
-        }
-
-        function generarArchivoBanco() {
-            if (!bdCuentasData || !convencionesData || processedData.length === 0) {
-                alert('❌ Falta información. Verifica BD, convenciones y liquidaciones procesadas.');
-                return;
-            }
-            // Reconstruir bancoMatches con los valores actuales de processedData
-            // para que ValorTransaccion coincida con Total Liquidación / Total a Pagar del consolidado
-            verificarMatchesBanco();
-            if (bancoMatches.length === 0) {
-                alert('❌ No se encontraron coincidencias entre las liquidaciones y la BD de cuentas.');
-                return;
-            }
-
-            const nitPagador = document.getElementById('nitPagador').value;
-            const tipoPago = document.getElementById('tipoPago').value;
-            const aplicacion = document.getElementById('aplicacion').value;
-            const secuencia = document.getElementById('secuencia').value;
-            const cuentaDebitar = document.getElementById('cuentaDebitar').value;
-            const tipoCuentaDebitar = document.getElementById('tipoCuentaDebitar').value;
-            const descripcionPago = document.getElementById('descripcionPago').value;
-
-            const wb = XLSX.utils.book_new();
-            const formatopabData = [];
-
-            formatopabData.push(['NIT PAGADOR', 'TIPO DE PAGO', 'APLICACIÓN', 'SECUENCIA DE ENVÍO', 'NRO CUENTA A DEBITAR', 'TIPO DE CUENTA A DEBITAR', 'DESCRIPCIÓN DEL PAGO']);
-            formatopabData.push([nitPagador, tipoPago, aplicacion, secuencia, cuentaDebitar, tipoCuentaDebitar, descripcionPago]);
-            formatopabData.push([]);
-            formatopabData.push(['Tipo Documento Beneficiario', 'Nit Beneficiario', 'Nombre Beneficiario', 'Tipo Transaccion', 'Código Banco', 'No Cuenta Beneficiario', 'Email', 'Documento Autorizado', 'Referencia', 'Celular Beneficiario', 'ValorTransaccion', 'Fecha de aplicación']);
-
-            const fechaAplicacion = new Date().toISOString().split('T')[0].replace(/-/g, '');
-            let totalDispersar = 0;
-            bancoMatches.forEach(m => {
-                if (m.valor > 0) {
-                    formatopabData.push([m.match.tipoDoc, m.match.nit, m.match.nombre, m.match.tipoTrans, m.match.codigoBanco, m.match.cuenta, '', '', `COMISION ${new Date().toLocaleDateString()}`, '', m.valor, fechaAplicacion]);
-                    totalDispersar += m.valor;
+                    });
+                    html += `</div>`;
                 }
-            });
-
-            const wsFormato = XLSX.utils.aoa_to_sheet(formatopabData);
-            XLSX.utils.book_append_sheet(wb, wsFormato, 'FORMATOPAB');
-
-            const resumenData = [['RESUMEN DE DISPERSIÓN BANCARIA'], [`Fecha: ${new Date().toLocaleString()}`], [`Total beneficiarios: ${bancoMatches.length}`], [`Total: $${totalDispersar.toLocaleString('en')}`], [], ['Ejecutivo', 'Cuenta', 'Banco', 'Valor', 'Match']];
-            bancoMatches.forEach(m => resumenData.push([m.ejecutivo, m.match.cuenta, m.match.codigoBanco, m.valor, `${m.score}%`]));
-            XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(resumenData), 'RESUMEN');
-
-            const noEncontrados = processedData.filter(p => !bancoMatches.some(m => m.ejecutivo === p.ejecutivo));
-            if (noEncontrados.length > 0) {
-                const noEncData = [['EJECUTIVOS SIN CUENTA EN BD'], [], [['Ejecutivo', 'Valor', 'Acción']]];
-                noEncontrados.forEach(p => noEncData.push([p.ejecutivo, p.total_a_pagar, 'Agregar a BDcuentas.xlsx']));
-                XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(noEncData), 'NO ENCONTRADOS');
-            }
-
-            XLSX.writeFile(wb, `BANCO_PAGO_COMISIONES_${new Date().toISOString().split('T')[0]}.xlsx`);
-            alert(`✅ Archivo bancario generado\n• Beneficiarios: ${bancoMatches.length}\n• Total: $${totalDispersar.toLocaleString('en')}`);
-        }
-
-        // ============================================================================
-        // DOWNLOAD FUNCTIONS
-        // ============================================================================
-        async function downloadZip() {
-            if (processedData.length === 0) return;
-            const zip = new JSZip();
-            processedData.forEach((d, i) => {
-                const wb = generateIndividualWorkbook(d);
-                const wbout = XLSX.write(wb, { bookType: 'xlsx', type: 'array' });
-                zip.file(`${i + 1}_${d.safeName}`, wbout);
-            });
-            const content = await zip.generateAsync({ type: "blob" });
-            saveAs(content, `Liquidaciones_${new Date().toISOString().split('T')[0]}.zip`);
-        }
-
-        function downloadConsolidated() {
-            if (processedData.length === 0) return;
-            const wb = XLSX.utils.book_new();
-            const sumData = [["CONSOLIDADO GENERAL DE PAGOS"], [`Fecha: ${new Date().toLocaleString()}`], [], ["Ejecutivo", "Subtotal", "Desc. AgenteMotor", "Total Liquidación / Total a Pagar", "Tipo", "Archivo Origen"]];
-            let granTotal = 0;
-            processedData.sort((a, b) => a.ejecutivo.localeCompare(b.ejecutivo)).forEach(p => {
-                // Natural → TOTAL LIQUIDACIÓN (total_comision: subtotal menos descuento AM, sin impuestos)
-                // Jurídico → TOTAL A PAGAR (total_a_pagar: total_comision - retención + IVA)
-                const valorFinal = p.isJuridico ? p.total_a_pagar : p.total_comision;
-                sumData.push([p.ejecutivo, p.subtotal_original, p.agenteMotorDescuento, valorFinal, p.isJuridico ? "Jurídico" : "Natural", p.fileName]);
-                granTotal += valorFinal;
-            });
-            sumData.push([]);
-            sumData.push(["GRAN TOTAL A DISPERSAR:", "", "", granTotal]);
-            const ws = XLSX.utils.aoa_to_sheet(sumData);
-            const borderStyle = { top: { style: "thin", color: { rgb: "000000" } }, bottom: { style: "thin", color: { rgb: "000000" } }, left: { style: "thin", color: { rgb: "000000" } }, right: { style: "thin", color: { rgb: "000000" } } };
-            const headerStyle = { fill: { fgColor: { rgb: "4472C4" } }, font: { bold: true, color: { rgb: "FFFFFF" } }, border: borderStyle, alignment: { horizontal: "center", vertical: "center" } };
-            const range = XLSX.utils.decode_range(ws['!ref']);
-            for (let R = range.s.r; R <= range.e.r; ++R) {
-                for (let C = range.s.c; C <= range.e.c; ++C) {
-                    const ref = XLSX.utils.encode_cell({ c: C, r: R });
-                    if (!ws[ref]) continue;
-                    if (!ws[ref].s) ws[ref].s = {};
-                    if (R === 0 && C === 0) ws[ref].s = { font: { bold: true, sz: 14, color: { rgb: "1F4E78" } } };
-                    if (R === 1 && C === 0) ws[ref].s = { font: { italic: true } };
-                    if (R === 3) ws[ref].s = headerStyle;
-                    if (R >= 4 && ws[ref].v !== "GRAN TOTAL A DISPERSAR:" && R !== range.e.r) {
-                        ws[ref].s.border = borderStyle;
-                        ws[ref].s.alignment = { vertical: 'center' };
-                    }
-                    if (ws[ref].t === 'n') {
-                        ws[ref].z = '0';
-                        ws[ref].s.alignment = { horizontal: 'right', vertical: 'center' };
-                    }
-                    if (ws[ref].v === "GRAN TOTAL A DISPERSAR:") {
-                        ws[ref].s = { font: { bold: true, sz: 12 }, fill: { fgColor: { rgb: "FFFF00" } }, border: borderStyle, alignment: { horizontal: 'right' } };
-                        const nc = XLSX.utils.encode_cell({ c: C + 3, r: R });
-                        if (ws[nc]) { ws[nc].s = { font: { bold: true, sz: 12 }, fill: { fgColor: { rgb: "FFFF00" } }, border: borderStyle }; ws[nc].z = '0'; }
-                    }
+                if (noEncontrados.length > 0) {
+                    html += `<div style="margin-top:0.7rem;padding:0.7rem;background:rgba(255,71,87,0.08);border-radius:7px;border:1px solid rgba(255,71,87,0.2);">
+                <div style="font-size:0.65rem;color:var(--red);margin-bottom:0.3rem;">⚠️ No encontrados en BD:</div>
+                <p style="font-size:0.65rem;color:var(--muted);">${noEncontrados.join(', ')}</p>
+            </div>`;
                 }
-            }
-            ws['!cols'] = [{ wch: 35 }, { wch: 15 }, { wch: 18 }, { wch: 18 }, { wch: 15 }, { wch: 40 }];
-            XLSX.utils.book_append_sheet(wb, ws, "RESUMEN GENERAL");
-            XLSX.writeFile(wb, `CONSOLIDADO_${new Date().toISOString().split('T')[0]}.xlsx`);
-        }
 
-        function downloadBankFile() { openBancoDrawer(); }
-
-        // ============================================================================
-        // GENERATE INDIVIDUAL WORKBOOK
-        // ============================================================================
-        function generateIndividualWorkbook(data) {
-            const wb = XLSX.utils.book_new();
-            const ws = {};
-            const borderStyle = { top: { style: "thin", color: { rgb: "000000" } }, bottom: { style: "thin", color: { rgb: "000000" } }, left: { style: "thin", color: { rgb: "000000" } }, right: { style: "thin", color: { rgb: "000000" } } };
-            const headerStyle = { fill: { fgColor: { rgb: "4472C4" } }, font: { bold: true, color: { rgb: "FFFFFF" } }, border: borderStyle, alignment: { horizontal: "center", vertical: "center" } };
-            const totalStyle = { fill: { fgColor: { rgb: "FFFF00" } }, font: { bold: true }, border: borderStyle };
-            const discountStyle = { fill: { fgColor: { rgb: "FFA502" } }, font: { bold: true, color: { rgb: "FFFFFF" } }, border: borderStyle };
-            const noBorderStyle = { top: { style: "none" }, bottom: { style: "none" }, left: { style: "none" }, right: { style: "none" } };
-
-            function writeIntCell(r, c, value, style = null) {
-                const ref = XLSX.utils.encode_cell({ r, c });
-                ws[ref] = { v: Math.round(value), t: 'n', z: '0' };
-                if (style) ws[ref].s = style;
-                return ref;
-            }
-            function writeStrCell(r, c, value, style = null) {
-                const ref = XLSX.utils.encode_cell({ r, c });
-                ws[ref] = { v: String(value), t: 's' };
-                if (style) ws[ref].s = style;
-                return ref;
+                summaryDiv.innerHTML = html;
+                document.getElementById('bancoMatchSummary').classList.remove('hide');
+                return { encontrados: _state.bancoMatches, noEncontrados };
             }
 
-            let currentRow = 0;
-            writeStrCell(currentRow, 0, data.n_liq, { font: { bold: true, sz: 14, color: { rgb: "1F4E78" } } }); currentRow++;
-            writeStrCell(currentRow, 0, "Ejecutivo: " + data.ejecutivo.toUpperCase(), { font: { bold: true, sz: 12 } }); currentRow++;
-            writeStrCell(currentRow, 0, "Descripción: LIQUIDACION DE COMISIONES AL " + data.fecha_liq, { font: { italic: true } }); currentRow++;
-            writeStrCell(currentRow, 0, "Fecha de generación:", { font: { bold: true } });
-            writeStrCell(currentRow, 1, new Date().toLocaleString()); currentRow++; currentRow++;
+            function generarArchivoBanco() {
+                if (!_state.bdCuentasData || !_state.convencionesData || _state.processedData.length === 0) {
+                    toast('❌ Falta información. Verifica BD, convenciones y liquidaciones procesadas.', 'error'); return;
+                }
+                verificarMatchesBanco();
+                if (_state.bancoMatches.length === 0) {
+                    toast('❌ No se encontraron coincidencias entre las liquidaciones y la BD de cuentas.', 'error'); return;
+                }
 
-            data.headers.forEach((h, c) => writeStrCell(currentRow, c, h, headerStyle)); currentRow++;
-            const numericColumns = [7, 9, 11, 12];
+                const nitPagador = document.getElementById('nitPagador').value;
+                const tipoPago = document.getElementById('tipoPago').value;
+                const aplicacion = document.getElementById('aplicacion').value;
+                const secuencia = document.getElementById('secuencia').value;
+                const cuentaDebitar = document.getElementById('cuentaDebitar').value;
+                const tipoCuentaDebitar = document.getElementById('tipoCuentaDebitar').value;
+                const descripcionPago = document.getElementById('descripcionPago').value;
 
-            data.rows.forEach(r => {
-                r.row.slice(0, 13).forEach((val, c) => {
-                    if (numericColumns.includes(c)) {
-                        writeIntCell(currentRow, c, parseNumeric(val), { border: borderStyle, alignment: { vertical: 'center', horizontal: 'right' } });
-                    } else {
-                        writeStrCell(currentRow, c, val, { border: borderStyle, alignment: { vertical: 'center' } });
+                const wb = XLSX.utils.book_new();
+                const formatopabData = [];
+                formatopabData.push(['NIT PAGADOR', 'TIPO DE PAGO', 'APLICACIÓN', 'SECUENCIA DE ENVÍO', 'NRO CUENTA A DEBITAR', 'TIPO DE CUENTA A DEBITAR', 'DESCRIPCIÓN DEL PAGO']);
+                formatopabData.push([nitPagador, tipoPago, aplicacion, secuencia, cuentaDebitar, tipoCuentaDebitar, descripcionPago]);
+                formatopabData.push([]);
+                formatopabData.push(['Tipo Documento Beneficiario', 'Nit Beneficiario', 'Nombre Beneficiario', 'Tipo Transaccion', 'Código Banco', 'No Cuenta Beneficiario', 'Email', 'Documento Autorizado', 'Referencia', 'Celular Beneficiario', 'ValorTransaccion', 'Fecha de aplicación']);
+
+                const fechaAplicacion = new Date().toISOString().split('T')[0].replace(/-/g, '');
+                let totalDispersar = 0;
+                _state.bancoMatches.forEach(m => {
+                    if (m.valor > 0) {
+                        formatopabData.push([m.match.tipoDoc, m.match.nit, m.match.nombre, m.match.tipoTrans, m.match.codigoBanco, m.match.cuenta, '', '', `COMISION ${new Date().toLocaleDateString()}`, '', m.valor, fechaAplicacion]);
+                        totalDispersar += m.valor;
                     }
                 });
+
+                const wsFormato = XLSX.utils.aoa_to_sheet(formatopabData);
+                XLSX.utils.book_append_sheet(wb, wsFormato, 'FORMATOPAB');
+
+                const resumenData = [['RESUMEN DE DISPERSIÓN BANCARIA'], [`Fecha: ${new Date().toLocaleString()}`], [`Total beneficiarios: ${_state.bancoMatches.length}`], [`Total: $${totalDispersar.toLocaleString('en')}`], [], ['Ejecutivo', 'Cuenta', 'Banco', 'Valor', 'Match']];
+                _state.bancoMatches.forEach(m => resumenData.push([m.ejecutivo, m.match.cuenta, m.match.codigoBanco, m.valor, `${m.score}%`]));
+                XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(resumenData), 'RESUMEN');
+
+                const noEnc = _state.processedData.filter(p => !_state.bancoMatches.some(m => m.ejecutivo === p.ejecutivo));
+                if (noEnc.length > 0) {
+                    const noEncData = [['EJECUTIVOS SIN CUENTA EN BD'], [], ['Ejecutivo', 'Valor', 'Acción']];
+                    noEnc.forEach(p => noEncData.push([p.ejecutivo, p.total_a_pagar, 'Agregar a BDcuentas.xlsx']));
+                    XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(noEncData), 'NO ENCONTRADOS');
+                }
+
+                XLSX.writeFile(wb, `BANCO_PAGO_COMISIONES_${new Date().toISOString().split('T')[0]}.xlsx`);
+                toast(`✅ Archivo bancario generado • Beneficiarios: ${_state.bancoMatches.length} • Total: $${totalDispersar.toLocaleString('en')}`, 'success', 6000);
+            }
+
+            // ──────────────────────────────────────────────
+            // DOWNLOAD FUNCTIONS
+            // ──────────────────────────────────────────────
+            async function downloadZip() {
+                if (_state.processedData.length === 0) return;
+                const zip = new JSZip();
+                _state.processedData.forEach((d, i) => {
+                    const wb = generateIndividualWorkbook(d);
+                    const wbout = XLSX.write(wb, { bookType: 'xlsx', type: 'array' });
+                    zip.file(`${i + 1}_${d.safeName}`, wbout);
+                });
+                const content = await zip.generateAsync({ type: 'blob' });
+                saveAs(content, `Liquidaciones_${new Date().toISOString().split('T')[0]}.zip`);
+                toast(`✅ ZIP descargado con ${_state.processedData.length} liquidaciones.`, 'success');
+            }
+
+            function downloadConsolidated() {
+                if (_state.processedData.length === 0) return;
+                const wb = XLSX.utils.book_new();
+                const sumData = [['CONSOLIDADO GENERAL DE PAGOS'], [`Fecha: ${new Date().toLocaleString()}`], [], ['Ejecutivo', 'Subtotal', 'Desc. AgenteMotor', 'Total Liquidación / Total a Pagar', 'Tipo', 'Archivo Origen']];
+                let granTotal = 0;
+                _state.processedData.sort((a, b) => a.ejecutivo.localeCompare(b.ejecutivo)).forEach(p => {
+                    const valorFinal = p.isJuridico ? p.total_a_pagar : p.total_comision;
+                    sumData.push([p.ejecutivo, p.subtotal_original, p.agenteMotorDescuento, valorFinal, p.isJuridico ? 'Jurídico' : 'Natural', p.fileName]);
+                    granTotal += valorFinal;
+                });
+                sumData.push([]); sumData.push(['GRAN TOTAL A DISPERSAR:', '', '', granTotal]);
+
+                const ws = XLSX.utils.aoa_to_sheet(sumData);
+                const borderStyle = { top: { style: 'thin', color: { rgb: '000000' } }, bottom: { style: 'thin', color: { rgb: '000000' } }, left: { style: 'thin', color: { rgb: '000000' } }, right: { style: 'thin', color: { rgb: '000000' } } };
+                const headerStyle = { fill: { fgColor: { rgb: '4472C4' } }, font: { bold: true, color: { rgb: 'FFFFFF' } }, border: borderStyle, alignment: { horizontal: 'center', vertical: 'center' } };
+                const range = XLSX.utils.decode_range(ws['!ref']);
+                for (let R = range.s.r; R <= range.e.r; ++R) {
+                    for (let C = range.s.c; C <= range.e.c; ++C) {
+                        const ref = XLSX.utils.encode_cell({ c: C, r: R });
+                        if (!ws[ref]) continue;
+                        if (!ws[ref].s) ws[ref].s = {};
+                        if (R === 0 && C === 0) ws[ref].s = { font: { bold: true, sz: 14, color: { rgb: '1F4E78' } } };
+                        if (R === 1 && C === 0) ws[ref].s = { font: { italic: true } };
+                        if (R === 3) ws[ref].s = headerStyle;
+                        if (R >= 4 && ws[ref].v !== 'GRAN TOTAL A DISPERSAR:' && R !== range.e.r) {
+                            ws[ref].s.border = borderStyle;
+                            ws[ref].s.alignment = { vertical: 'center' };
+                        }
+                        if (ws[ref].t === 'n') { ws[ref].z = '0'; ws[ref].s.alignment = { horizontal: 'right', vertical: 'center' }; }
+                        if (ws[ref].v === 'GRAN TOTAL A DISPERSAR:') {
+                            ws[ref].s = { font: { bold: true, sz: 12 }, fill: { fgColor: { rgb: 'FFFF00' } }, border: borderStyle, alignment: { horizontal: 'right' } };
+                            const nc = XLSX.utils.encode_cell({ c: C + 3, r: R });
+                            if (ws[nc]) { ws[nc].s = { font: { bold: true, sz: 12 }, fill: { fgColor: { rgb: 'FFFF00' } }, border: borderStyle }; ws[nc].z = '0'; }
+                        }
+                    }
+                }
+                ws['!cols'] = [{ wch: 35 }, { wch: 15 }, { wch: 18 }, { wch: 18 }, { wch: 15 }, { wch: 40 }];
+                XLSX.utils.book_append_sheet(wb, ws, 'RESUMEN GENERAL');
+                XLSX.writeFile(wb, `CONSOLIDADO_${new Date().toISOString().split('T')[0]}.xlsx`);
+                toast('✅ Consolidado descargado.', 'success');
+            }
+
+            function downloadBankFile() { openBancoDrawer(); }
+
+            // ──────────────────────────────────────────────
+            // INDIVIDUAL WORKBOOK
+            // ──────────────────────────────────────────────
+            function generateIndividualWorkbook(data) {
+                const wb = XLSX.utils.book_new();
+                const ws = {};
+                const borderStyle = { top: { style: 'thin', color: { rgb: '000000' } }, bottom: { style: 'thin', color: { rgb: '000000' } }, left: { style: 'thin', color: { rgb: '000000' } }, right: { style: 'thin', color: { rgb: '000000' } } };
+                const headerStyle = { fill: { fgColor: { rgb: '4472C4' } }, font: { bold: true, color: { rgb: 'FFFFFF' } }, border: borderStyle, alignment: { horizontal: 'center', vertical: 'center' } };
+                const totalStyle = { fill: { fgColor: { rgb: 'FFFF00' } }, font: { bold: true }, border: borderStyle };
+                const discountStyle = { fill: { fgColor: { rgb: 'FFA502' } }, font: { bold: true, color: { rgb: 'FFFFFF' } }, border: borderStyle };
+                const noBorderStyle = { top: { style: 'none' }, bottom: { style: 'none' }, left: { style: 'none' }, right: { style: 'none' } };
+
+                function writeIntCell(r, c, value, style = null) {
+                    const ref = XLSX.utils.encode_cell({ r, c });
+                    ws[ref] = { v: Math.round(value), t: 'n', z: '0' };
+                    if (style) ws[ref].s = style;
+                    return ref;
+                }
+                function writeStrCell(r, c, value, style = null) {
+                    const ref = XLSX.utils.encode_cell({ r, c });
+                    ws[ref] = { v: String(value), t: 's' };
+                    if (style) ws[ref].s = style;
+                    return ref;
+                }
+
+                let currentRow = 0;
+                writeStrCell(currentRow, 0, data.n_liq, { font: { bold: true, sz: 14, color: { rgb: '1F4E78' } } }); currentRow++;
+                writeStrCell(currentRow, 0, 'Ejecutivo: ' + data.ejecutivo.toUpperCase(), { font: { bold: true, sz: 12 } }); currentRow++;
+                writeStrCell(currentRow, 0, 'Descripción: LIQUIDACION DE COMISIONES AL ' + data.fecha_liq, { font: { italic: true } }); currentRow++;
+                writeStrCell(currentRow, 0, 'Fecha de generación:', { font: { bold: true } });
+                writeStrCell(currentRow, 1, new Date().toLocaleString()); currentRow++; currentRow++;
+
+                data.headers.forEach((h, c) => writeStrCell(currentRow, c, h, headerStyle)); currentRow++;
+                const numericColumns = [7, 9, 11, 12];
+                data.rows.forEach(r => {
+                    r.row.slice(0, 13).forEach((val, c) => {
+                        if (numericColumns.includes(c)) writeIntCell(currentRow, c, parseNumeric(val), { border: borderStyle, alignment: { vertical: 'center', horizontal: 'right' } });
+                        else writeStrCell(currentRow, c, val, { border: borderStyle, alignment: { vertical: 'center' } });
+                    });
+                    currentRow++;
+                });
+
                 currentRow++;
-            });
+                const emptyPad = Math.max(0, data.headers.length - 2);
 
-            currentRow++;
-            const emptyPad = Math.max(0, data.headers.length - 2);
+                if (!data.isJuridico) {
+                    writeStrCell(currentRow, emptyPad, 'SUBTOTAL COMISIONES', totalStyle);
+                    writeIntCell(currentRow, emptyPad + 1, data.subtotal_original, totalStyle); currentRow++;
+                    if (data.agenteMotorDescuento > 0) {
+                        writeStrCell(currentRow, emptyPad, `DESCUENTO AGENTEMOTOR (${data.agenteMotorCount} unidades)`, discountStyle);
+                        writeIntCell(currentRow, emptyPad + 1, -data.agenteMotorDescuento, discountStyle); currentRow++;
+                    }
+                    writeStrCell(currentRow, emptyPad, 'TOTAL LIQUIDACIÓN', { font: { bold: true, sz: 12, color: { rgb: '1F4E78' } }, fill: { fgColor: { rgb: '00F0FF' } }, border: borderStyle });
+                    writeIntCell(currentRow, emptyPad + 1, data.total_comision, { font: { bold: true, sz: 12, color: { rgb: '1F4E78' } }, fill: { fgColor: { rgb: '00F0FF' } }, border: borderStyle });
+                } else {
+                    writeStrCell(currentRow, emptyPad, 'SUBTOTAL COMISIONES', totalStyle);
+                    writeIntCell(currentRow, emptyPad + 1, data.subtotal_original, totalStyle); currentRow++;
+                    if (data.agenteMotorDescuento > 0) {
+                        writeStrCell(currentRow, emptyPad, `DESCUENTO AGENTEMOTOR (${data.agenteMotorCount} unidades)`, discountStyle);
+                        writeIntCell(currentRow, emptyPad + 1, -data.agenteMotorDescuento, discountStyle); currentRow++;
+                    }
+                    writeStrCell(currentRow, emptyPad, 'TOTAL COMISIONES', totalStyle);
+                    writeIntCell(currentRow, emptyPad + 1, data.total_comision, totalStyle); currentRow += 3;
 
-            if (!data.isJuridico) {
-                writeStrCell(currentRow, emptyPad, "SUBTOTAL COMISIONES", totalStyle);
-                writeIntCell(currentRow, emptyPad + 1, data.subtotal_original, totalStyle); currentRow++;
-                if (data.agenteMotorDescuento > 0) {
-                    writeStrCell(currentRow, emptyPad, `DESCUENTO AGENTEMOTOR (${data.agenteMotorCount} unidades)`, discountStyle);
-                    writeIntCell(currentRow, emptyPad + 1, -data.agenteMotorDescuento, discountStyle); currentRow++;
+                    const fPad = 5;
+                    writeStrCell(currentRow, fPad, 'DETALLE DE FACTURACIÓN', { font: { bold: true, sz: 12, color: { rgb: '1F4E78' } }, border: borderStyle, alignment: { horizontal: 'left' } });
+                    for (let c = 0; c < fPad; c++) writeStrCell(currentRow, c, '', { border: noBorderStyle }); currentRow++;
+                    writeStrCell(currentRow, fPad, 'FECHA DE FACTURA', totalStyle);
+                    writeStrCell(currentRow, fPad + 1, new Date().toLocaleDateString(), { ...totalStyle, alignment: { horizontal: 'right' } });
+                    for (let c = 0; c < fPad; c++) writeStrCell(currentRow, c, '', { border: noBorderStyle }); currentRow++;
+                    writeStrCell(currentRow, fPad, 'TOTAL COMISIONES', { border: borderStyle, alignment: { horizontal: 'left' } });
+                    writeIntCell(currentRow, fPad + 1, data.total_comision, { border: borderStyle, alignment: { horizontal: 'right' } });
+                    for (let c = 0; c < fPad; c++) writeStrCell(currentRow, c, '', { border: noBorderStyle }); currentRow++;
+                    writeStrCell(currentRow, fPad, `RETENCIÓN EN LA FUENTE (${data.retencion_pct}%)`, { border: borderStyle, alignment: { horizontal: 'left' } });
+                    writeIntCell(currentRow, fPad + 1, data.retencion_val, { border: borderStyle, alignment: { horizontal: 'right' } });
+                    for (let c = 0; c < fPad; c++) writeStrCell(currentRow, c, '', { border: noBorderStyle }); currentRow++;
+                    writeStrCell(currentRow, fPad, `IVA GENERADO (${data.iva_pct}%)`, { border: borderStyle, alignment: { horizontal: 'left' } });
+                    writeIntCell(currentRow, fPad + 1, data.iva_val, { border: borderStyle, alignment: { horizontal: 'right' } });
+                    for (let c = 0; c < fPad; c++) writeStrCell(currentRow, c, '', { border: noBorderStyle }); currentRow++;
+                    writeStrCell(currentRow, fPad, 'TOTAL A PAGAR', { font: { bold: true, sz: 12, color: { rgb: '1F4E78' } }, border: borderStyle, alignment: { horizontal: 'left' } });
+                    writeIntCell(currentRow, fPad + 1, data.total_a_pagar, { font: { bold: true, sz: 12, color: { rgb: '1F4E78' } }, border: borderStyle, alignment: { horizontal: 'right' } });
+                    for (let c = 0; c < fPad; c++) writeStrCell(currentRow, c, '', { border: noBorderStyle });
                 }
-                writeStrCell(currentRow, emptyPad, "TOTAL LIQUIDACIÓN", { font: { bold: true, sz: 12, color: { rgb: "1F4E78" } }, fill: { fgColor: { rgb: "00F0FF" } }, border: borderStyle });
-                writeIntCell(currentRow, emptyPad + 1, data.total_comision, { font: { bold: true, sz: 12, color: { rgb: "1F4E78" } }, fill: { fgColor: { rgb: "00F0FF" } }, border: borderStyle });
-            } else {
-                writeStrCell(currentRow, emptyPad, "SUBTOTAL COMISIONES", totalStyle);
-                writeIntCell(currentRow, emptyPad + 1, data.subtotal_original, totalStyle); currentRow++;
-                if (data.agenteMotorDescuento > 0) {
-                    writeStrCell(currentRow, emptyPad, `DESCUENTO AGENTEMOTOR (${data.agenteMotorCount} unidades)`, discountStyle);
-                    writeIntCell(currentRow, emptyPad + 1, -data.agenteMotorDescuento, discountStyle); currentRow++;
-                }
-                writeStrCell(currentRow, emptyPad, "TOTAL COMISIONES", totalStyle);
-                writeIntCell(currentRow, emptyPad + 1, data.total_comision, totalStyle); currentRow += 3;
 
-                const fPad = 5;
-                writeStrCell(currentRow, fPad, "DETALLE DE FACTURACIÓN", { font: { bold: true, sz: 12, color: { rgb: "1F4E78" } }, border: borderStyle, alignment: { horizontal: 'left' } });
-                for (let c = 0; c < fPad; c++) writeStrCell(currentRow, c, "", { border: noBorderStyle }); currentRow++;
-                writeStrCell(currentRow, fPad, "FECHA DE FACTURA", totalStyle);
-                writeStrCell(currentRow, fPad + 1, new Date().toLocaleDateString(), { ...totalStyle, alignment: { horizontal: 'right' } });
-                for (let c = 0; c < fPad; c++) writeStrCell(currentRow, c, "", { border: noBorderStyle }); currentRow++;
-                writeStrCell(currentRow, fPad, "TOTAL COMISIONES", { border: borderStyle, alignment: { horizontal: 'left' } });
-                writeIntCell(currentRow, fPad + 1, data.total_comision, { border: borderStyle, alignment: { horizontal: 'right' } });
-                for (let c = 0; c < fPad; c++) writeStrCell(currentRow, c, "", { border: noBorderStyle }); currentRow++;
-                writeStrCell(currentRow, fPad, `RETENCIÓN EN LA FUENTE (${data.retencion_pct}%)`, { border: borderStyle, alignment: { horizontal: 'left' } });
-                writeIntCell(currentRow, fPad + 1, data.retencion_val, { border: borderStyle, alignment: { horizontal: 'right' } });
-                for (let c = 0; c < fPad; c++) writeStrCell(currentRow, c, "", { border: noBorderStyle }); currentRow++;
-                writeStrCell(currentRow, fPad, `IVA GENERADO (${data.iva_pct}%)`, { border: borderStyle, alignment: { horizontal: 'left' } });
-                writeIntCell(currentRow, fPad + 1, data.iva_val, { border: borderStyle, alignment: { horizontal: 'right' } });
-                for (let c = 0; c < fPad; c++) writeStrCell(currentRow, c, "", { border: noBorderStyle }); currentRow++;
-                writeStrCell(currentRow, fPad, "TOTAL A PAGAR", { font: { bold: true, sz: 12, color: { rgb: "1F4E78" } }, border: borderStyle, alignment: { horizontal: 'left' } });
-                writeIntCell(currentRow, fPad + 1, data.total_a_pagar, { font: { bold: true, sz: 12, color: { rgb: "1F4E78" } }, border: borderStyle, alignment: { horizontal: 'right' } });
-                for (let c = 0; c < fPad; c++) writeStrCell(currentRow, c, "", { border: noBorderStyle });
+                const range = { s: { r: 0, c: 0 }, e: { r: currentRow, c: data.headers.length - 1 } };
+                ws['!ref'] = XLSX.utils.encode_range(range);
+                ws['!cols'] = data.headers.map(h => ({ wch: Math.max(15, h.length + 2) }));
+                XLSX.utils.book_append_sheet(wb, ws, 'Liquidacion');
+                return wb;
             }
 
-            const range = { s: { r: 0, c: 0 }, e: { r: currentRow, c: data.headers.length - 1 } };
-            ws['!ref'] = XLSX.utils.encode_range(range);
-            ws['!cols'] = data.headers.map(h => ({ wch: Math.max(15, h.length + 2) }));
-            XLSX.utils.book_append_sheet(wb, ws, "Liquidacion");
-            return wb;
-        }
+            // ──────────────────────────────────────────────
+            // INIT
+            // ──────────────────────────────────────────────
+            function init() {
+                const dateStr = new Date().toLocaleDateString('es-CO', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+                document.getElementById('currentDate').innerText = dateStr.charAt(0).toUpperCase() + dateStr.slice(1);
+                loadConfig();
+                // Auto-save config changes inside drawer
+                document.querySelectorAll('.d-input-group input').forEach(el => el.addEventListener('change', saveConfig));
+            }
+
+            // Public API (funciones llamadas desde HTML)
+            return {
+                setPerfil, toggleSidebar, closeSidebar,
+                openBancoDrawer, closeBancoDrawer,
+                openResultsDrawer, closeResultsDrawer,
+                closeAgentePanel,
+                handleFiles, removeFile, clearFiles, resetApp,
+                processFiles, recalcularConAgenteMotor,
+                switchTab, verificarMatchesBanco, generarArchivoBanco,
+                downloadZip, downloadConsolidated, downloadBankFile,
+                toast,
+                // Exponer parseNumeric para generateIndividualWorkbook (llamado internamente)
+                _parseNumeric: parseNumeric,
+                init,
+            };
+        })();
+
+        // Inicializar la aplicación
+        App.init();
+
+        // Conectar llamadas de HTML con el módulo App
+        function setPerfil(v) { App.setPerfil(v); }
+        function toggleSidebar() { App.toggleSidebar(); }
+        function closeSidebar() { App.closeSidebar(); }
+        function openBancoDrawer() { App.openBancoDrawer(); }
+        function closeBancoDrawer() { App.closeBancoDrawer(); }
+        function openResultsDrawer() { App.openResultsDrawer(); }
+        function closeResultsDrawer() { App.closeResultsDrawer(); }
+        function closeAgentePanel() { App.closeAgentePanel(); }
+        function removeFile(i) { App.removeFile(i); }
+        function clearFiles() { App.clearFiles(); }
+        function resetApp() { App.resetApp(); }
+        function processFiles() { App.processFiles(); }
+        function recalcularConAgenteMotor() { App.recalcularConAgenteMotor(); }
+        function switchTab(n) { App.switchTab(n); }
+        function verificarMatchesBanco() { App.verificarMatchesBanco(); }
+        function generarArchivoBanco() { App.generarArchivoBanco(); }
+        function downloadZip() { App.downloadZip(); }
+        function downloadConsolidated() { App.downloadConsolidated(); }
+        function downloadBankFile() { App.downloadBankFile(); }
     </script>
 </body>
 
