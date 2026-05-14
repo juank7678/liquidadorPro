@@ -269,6 +269,12 @@
             display: flex;
             align-items: center;
             gap: 0.4rem;
+            cursor: pointer;
+            user-select: none;
+        }
+
+        .group-label:hover {
+            color: var(--text);
         }
 
         .group-label::before {
@@ -280,6 +286,29 @@
             background: var(--accent);
             box-shadow: 0 0 6px var(--accent);
             flex-shrink: 0;
+        }
+
+        .group-label .collapse-arrow {
+            margin-left: auto;
+            font-size: 0.55rem;
+            opacity: 0.5;
+            transition: transform 0.2s;
+        }
+
+        .sidebar-group.collapsed .collapse-arrow {
+            transform: rotate(-90deg);
+        }
+
+        .group-body {
+            overflow: hidden;
+            transition: max-height 0.25s ease, opacity 0.2s ease;
+            max-height: 600px;
+            opacity: 1;
+        }
+
+        .sidebar-group.collapsed .group-body {
+            max-height: 0;
+            opacity: 0;
         }
 
         /* ══════════════════════════════════════════
@@ -516,6 +545,7 @@
             font-size: 1.4rem;
             font-weight: 700;
             line-height: 1;
+            cursor: help;
         }
 
         .metric-val.c-processed {
@@ -810,6 +840,17 @@
 
         .f-btn.f-process:hover:not(:disabled) {
             background: var(--accent);
+            color: #000;
+        }
+
+        .f-btn.f-agente {
+            background: rgba(255, 165, 2, 0.08);
+            border-color: rgba(255, 165, 2, 0.35);
+            color: var(--orange);
+        }
+
+        .f-btn.f-agente:hover:not(:disabled) {
+            background: var(--orange);
             color: #000;
         }
 
@@ -1408,6 +1449,87 @@
         }
 
         /* ══════════════════════════════════════════
+           CUSTOM CONFIRM MODAL
+        ══════════════════════════════════════════ */
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.65);
+            backdrop-filter: blur(5px);
+            z-index: 2000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            animation: fadeIn 0.2s ease;
+        }
+
+        .modal-box {
+            background: var(--bg-card);
+            border: 1px solid var(--border-2);
+            border-radius: 14px;
+            padding: 1.6rem 1.8rem;
+            max-width: 420px;
+            width: calc(100% - 2rem);
+            box-shadow: 0 24px 64px rgba(0, 0, 0, 0.7);
+            animation: slideUp 0.25s ease;
+        }
+
+        .modal-icon {
+            font-size: 2rem;
+            margin-bottom: 0.7rem;
+            display: block;
+        }
+
+        .modal-title {
+            font-family: var(--font-display);
+            font-size: 1rem;
+            font-weight: 700;
+            color: var(--yellow);
+            margin-bottom: 0.5rem;
+        }
+
+        .modal-body {
+            font-size: 0.78rem;
+            color: var(--muted);
+            line-height: 1.6;
+            margin-bottom: 1.2rem;
+            white-space: pre-line;
+        }
+
+        .modal-actions {
+            display: flex;
+            gap: 0.7rem;
+            justify-content: flex-end;
+        }
+
+        .modal-btn {
+            padding: 0.5rem 1.2rem;
+            border-radius: 8px;
+            font-family: var(--font-mono);
+            font-size: 0.75rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            border: 1px solid var(--border-2);
+            background: transparent;
+            color: var(--text);
+        }
+
+        .modal-btn:hover {
+            background: rgba(255, 255, 255, 0.06);
+        }
+
+        .modal-btn.modal-confirm {
+            background: rgba(0, 240, 255, 0.1);
+            border-color: rgba(0, 240, 255, 0.4);
+            color: var(--accent);
+        }
+
+        .modal-btn.modal-confirm:hover {
+            background: var(--accent);
+            color: #000;
+        }
+
+        /* ══════════════════════════════════════════
            KEYFRAMES
         ══════════════════════════════════════════ */
         @keyframes spin {
@@ -1569,14 +1691,22 @@
 
             .app-footer {
                 gap: 0.3rem;
-                padding: 0 0.5rem;
-                flex-wrap: nowrap;
-                overflow-x: auto;
+                padding: 0.4rem 0.5rem;
+                flex-wrap: wrap;
+                height: auto;
+                min-height: var(--footer-h);
             }
 
             .f-btn {
                 padding: 0.4rem 0.6rem;
                 font-size: 0.65rem;
+                flex: 1 1 auto;
+                min-width: 0;
+                justify-content: center;
+            }
+
+            .f-spacer {
+                display: none;
             }
 
             .banco-grid {
@@ -1634,54 +1764,68 @@
 
         <!-- Perfil del Asesor -->
         <div class="sidebar-group">
-            <div class="group-label">Perfil del Asesor</div>
-            <div class="toggle-group" id="perfilGroup" role="group" aria-label="Tipo de persona">
-                <button class="toggle-btn active" onclick="setPerfil('Natural')" id="btnNatural"
-                    aria-pressed="true">Natural</button>
-                <button class="toggle-btn" onclick="setPerfil('Jurídico')" id="btnJuridico"
-                    aria-pressed="false">Jurídico</button>
+            <div class="group-label" onclick="this.closest('.sidebar-group').classList.toggle('collapsed')">Perfil del
+                Asesor <span class="collapse-arrow">▼</span></div>
+            <div class="group-body">
+                <div class="toggle-group" id="perfilGroup" role="group" aria-label="Tipo de persona">
+                    <button class="toggle-btn active" onclick="setPerfil('Natural')" id="btnNatural"
+                        aria-pressed="true">Natural</button>
+                    <button class="toggle-btn" onclick="setPerfil('Jurídico')" id="btnJuridico"
+                        aria-pressed="false">Jurídico</button>
+                </div>
+                <input type="radio" name="perfil" value="Natural" class="radio-hidden" id="perfilNatural" checked>
+                <input type="radio" name="perfil" value="Jurídico" class="radio-hidden" id="perfilJuridico">
             </div>
-            <input type="radio" name="perfil" value="Natural" class="radio-hidden" id="perfilNatural" checked>
-            <input type="radio" name="perfil" value="Jurídico" class="radio-hidden" id="perfilJuridico">
         </div>
 
         <!-- AgenteMotor -->
         <div class="sidebar-group">
-            <div class="group-label">AgenteMotor</div>
-            <label class="mini-label" for="valorAgenteMotor">Valor por unidad ($)</label>
-            <input type="number" id="valorAgenteMotor" value="0" step="1000" min="0" class="mini-input">
-            <div class="s-file-card" id="sAgenteCard">
-                <input type="file" id="agenteMotorInput" accept=".xlsx,.xls" aria-label="Cargar archivo AgenteMotor">
-                <span class="s-file-label" id="agenteMotorText">📁 Cargar archivo</span>
+            <div class="group-label" onclick="this.closest('.sidebar-group').classList.toggle('collapsed')">AgenteMotor
+                <span class="collapse-arrow">▼</span></div>
+            <div class="group-body">
+                <label class="mini-label" for="valorAgenteMotor">Valor por unidad ($)</label>
+                <input type="number" id="valorAgenteMotor" value="0" step="1000" min="0" class="mini-input">
+                <div class="s-file-card" id="sAgenteCard">
+                    <input type="file" id="agenteMotorInput" accept=".xlsx,.xls"
+                        aria-label="Cargar archivo AgenteMotor">
+                    <span class="s-file-label" id="agenteMotorText">📁 Cargar archivo</span>
+                </div>
+                <div id="agenteMotorStatus" class="agente-status pending" aria-live="polite">⏳ Esperando archivo...
+                </div>
             </div>
-            <div id="agenteMotorStatus" class="agente-status pending" aria-live="polite">⏳ Esperando archivo...</div>
         </div>
 
         <!-- Parámetros Fiscales -->
         <div class="sidebar-group disabled" id="fiscalParams">
-            <div class="group-label">Parámetros Fiscales</div>
-            <label class="mini-label" for="retencion">Retención en la fuente (%)</label>
-            <input type="number" id="retencion" value="11.0" step="0.1" min="0" max="100" class="mini-input">
-            <label class="mini-label" for="iva">IVA (%)</label>
-            <input type="number" id="iva" value="19.0" step="0.1" min="0" max="100" class="mini-input">
+            <div class="group-label" onclick="this.closest('.sidebar-group').classList.toggle('collapsed')">Parámetros
+                Fiscales <span class="collapse-arrow">▼</span></div>
+            <div class="group-body">
+                <label class="mini-label" for="retencion">Retención en la fuente (%)</label>
+                <input type="number" id="retencion" value="11.0" step="0.1" min="0" max="100" class="mini-input">
+                <label class="mini-label" for="iva">IVA (%)</label>
+                <input type="number" id="iva" value="19.0" step="0.1" min="0" max="100" class="mini-input">
+            </div>
         </div>
 
         <!-- Configuración Banco -->
         <div class="sidebar-group" id="bancoSidebarGroup">
-            <div class="group-label">Configuración Banco</div>
-            <div class="s-file-card">
-                <input type="file" id="bdCuentasInput" accept=".xlsx,.xls" aria-label="Cargar BD Cuentas">
-                <span class="s-file-label" id="bdCuentasText">🗂 BD Cuentas</span>
+            <div class="group-label" onclick="this.closest('.sidebar-group').classList.toggle('collapsed')">
+                Configuración Banco <span class="collapse-arrow">▼</span></div>
+            <div class="group-body">
+                <div class="s-file-card">
+                    <input type="file" id="bdCuentasInput" accept=".xlsx,.xls" aria-label="Cargar BD Cuentas">
+                    <span class="s-file-label" id="bdCuentasText">🗂 BD Cuentas</span>
+                </div>
+                <span id="bdCuentasStatus" class="banco-status pending" aria-live="polite">⏳ Esperando BD...</span>
+                <div class="s-file-card" style="margin-top:0.5rem;">
+                    <input type="file" id="convencionesInput" accept=".xlsx,.xls" aria-label="Cargar Convenciones">
+                    <span class="s-file-label" id="convencionesText">📋 Convenciones</span>
+                </div>
+                <span id="convencionesStatus" class="banco-status pending" aria-live="polite">⏳ Esperando
+                    convenciones...</span>
+                <button class="s-btn s-green" style="margin-top:0.6rem;" onclick="openBancoDrawer()">🏦 Generar
+                    Banco</button>
             </div>
-            <span id="bdCuentasStatus" class="banco-status pending" aria-live="polite">⏳ Esperando BD...</span>
-            <div class="s-file-card" style="margin-top:0.5rem;">
-                <input type="file" id="convencionesInput" accept=".xlsx,.xls" aria-label="Cargar Convenciones">
-                <span class="s-file-label" id="convencionesText">📋 Convenciones</span>
-            </div>
-            <span id="convencionesStatus" class="banco-status pending" aria-live="polite">⏳ Esperando
-                convenciones...</span>
-            <button class="s-btn s-green" style="margin-top:0.6rem;" onclick="openBancoDrawer()">🏦 Generar
-                Banco</button>
         </div>
     </aside>
 
@@ -1697,15 +1841,15 @@
             </div>
             <div class="metric-cell">
                 <div class="metric-val c-bruto" id="valBruto">$0</div>
-                <div class="metric-lbl">Total Bruto</div>
+                <div class="metric-lbl">Total Bruto <span style="color:var(--accent);opacity:0.6;">COP</span></div>
             </div>
             <div class="metric-cell">
                 <div class="metric-val c-desc" id="valDesc">$0</div>
-                <div class="metric-lbl">Descuentos</div>
+                <div class="metric-lbl">Descuentos <span style="color:var(--red);opacity:0.6;">COP</span></div>
             </div>
             <div class="metric-cell">
                 <div class="metric-val c-neto" id="valTotal">$0</div>
-                <div class="metric-lbl">Total Neto</div>
+                <div class="metric-lbl">Total Neto <span style="color:var(--green);opacity:0.6;">COP</span></div>
             </div>
         </div>
 
@@ -1761,6 +1905,8 @@
         <button class="f-btn f-reset" onclick="resetApp()">🗑 Reiniciar Todo</button>
         <div class="f-spacer"></div>
         <button class="f-btn f-process" id="btnProcess" onclick="processFiles()">🚀 Procesar Todo</button>
+        <button class="f-btn f-agente" id="btnAgenteMotor" onclick="recalcularConAgenteMotor()" disabled>🚗 Calcular
+            AgenteMotor</button>
         <button class="f-btn f-zip" onclick="downloadZip()" id="btnZip" disabled>📦 Descargar ZIP</button>
         <button class="f-btn f-consol" onclick="downloadConsolidated()" id="btnConsol" disabled>📊 Consolidado</button>
     </footer>
@@ -1950,6 +2096,40 @@
             }
 
             // ──────────────────────────────────────────────
+            // CUSTOM CONFIRM MODAL (reemplaza confirm() nativo)
+            // ──────────────────────────────────────────────
+            function showConfirm({ icon = '⚠️', title, body, confirmText = 'Aceptar', cancelText = 'Cancelar' }) {
+                return new Promise(resolve => {
+                    const overlay = document.createElement('div');
+                    overlay.className = 'modal-overlay';
+                    overlay.innerHTML = `
+                        <div class="modal-box">
+                            <span class="modal-icon">${icon}</span>
+                            <div class="modal-title">${title}</div>
+                            <div class="modal-body">${body}</div>
+                            <div class="modal-actions">
+                                <button class="modal-btn modal-cancel">${cancelText}</button>
+                                <button class="modal-btn modal-confirm">${confirmText}</button>
+                            </div>
+                        </div>`;
+                    document.body.appendChild(overlay);
+                    const cleanup = (result) => {
+                        overlay.style.opacity = '0';
+                        overlay.style.transition = 'opacity 0.2s';
+                        setTimeout(() => overlay.remove(), 200);
+                        resolve(result);
+                    };
+                    overlay.querySelector('.modal-confirm').onclick = () => cleanup(true);
+                    overlay.querySelector('.modal-cancel').onclick = () => cleanup(false);
+                    overlay.addEventListener('click', e => { if (e.target === overlay) cleanup(false); });
+                    document.addEventListener('keydown', function onKey(e) {
+                        if (e.key === 'Enter') { document.removeEventListener('keydown', onKey); cleanup(true); }
+                        if (e.key === 'Escape') { document.removeEventListener('keydown', onKey); cleanup(false); }
+                    });
+                });
+            }
+
+            // ──────────────────────────────────────────────
             // PERSISTENCIA (localStorage)
             // ──────────────────────────────────────────────
             const LS_KEY = 'liquidadorPro_config';
@@ -2089,6 +2269,7 @@
                 document.getElementById('agenteMotorStatus').className = 'agente-status pending';
                 document.getElementById('agenteMotorSummary').classList.add('hide');
                 document.getElementById('btnRecalcular').disabled = true;
+                document.getElementById('btnAgenteMotor').disabled = true;
                 document.getElementById('agenteMotorPanel').classList.remove('open');
 
                 ['bdCuentasInput', 'convencionesInput'].forEach(id => document.getElementById(id).value = '');
@@ -2118,13 +2299,28 @@
             // ──────────────────────────────────────────────
             // METRICS
             // ──────────────────────────────────────────────
-            function fmt(n) { return '$' + Math.round(n).toLocaleString('en-US'); }
+            function fmt(n) {
+                const abs = Math.abs(Math.round(n));
+                if (abs >= 1_000_000_000) return '$' + (n / 1_000_000_000).toFixed(1) + 'B';
+                if (abs >= 1_000_000) return '$' + (n / 1_000_000).toFixed(1) + 'M';
+                if (abs >= 1_000) return '$' + (n / 1_000).toFixed(0) + 'K';
+                return '$' + Math.round(n).toLocaleString('es-CO');
+            }
             function updateMetrics() {
                 const pd = _state.processedData;
+                const bruto = pd.reduce((s, p) => s + p.subtotal_original, 0);
+                const desc = pd.reduce((s, p) => s + p.agenteMotorDescuento, 0);
+                const total = pd.reduce((s, p) => s + p.total_a_pagar, 0);
                 document.getElementById('valProcessed').textContent = pd.length;
-                document.getElementById('valBruto').textContent = fmt(pd.reduce((s, p) => s + p.subtotal_original, 0));
-                document.getElementById('valDesc').textContent = fmt(pd.reduce((s, p) => s + p.agenteMotorDescuento, 0));
-                document.getElementById('valTotal').textContent = fmt(pd.reduce((s, p) => s + p.total_a_pagar, 0));
+                const brutoEl = document.getElementById('valBruto');
+                brutoEl.textContent = fmt(bruto);
+                brutoEl.title = '$' + Math.round(bruto).toLocaleString('es-CO') + ' COP';
+                const descEl = document.getElementById('valDesc');
+                descEl.textContent = fmt(desc);
+                descEl.title = '$' + Math.round(desc).toLocaleString('es-CO') + ' COP';
+                const totalEl = document.getElementById('valTotal');
+                totalEl.textContent = fmt(total);
+                totalEl.title = '$' + Math.round(total).toLocaleString('es-CO') + ' COP';
             }
             function updateHeaderBadge() {
                 const badge = document.getElementById('headerBadge');
@@ -2188,11 +2384,12 @@
                 }
 
                 const parser = new DOMParser();
+                progressFill.style.width = '0%';
 
                 for (let i = 0; i < filesToProcess.length; i++) {
                     const file = filesToProcess[i];
-                    progressFill.style.width = `${((i + 1) / filesToProcess.length) * 100}%`;
                     overlayText.textContent = `Procesando ${i + 1}/${filesToProcess.length}: ${file.name}`;
+                    progressFill.style.width = `${Math.round(((i + 0.5) / filesToProcess.length) * 100)}%`;
 
                     try {
                         const text = await file.text();
@@ -2256,6 +2453,42 @@
 
                         const safeName = ejecutivo.replace(/[^\w\s-]/gi, '').trim().replace(/ /g, '_') || 'Sin_Nombre';
 
+                        // ─── VALIDACIÓN DE DUPLICADOS ───
+                        const ejecutivoNormalizado = normalizarTexto(ejecutivo);
+
+                        const duplicadoExistente = _state.processedData.find(
+                            existing => normalizarTexto(existing.ejecutivo) === ejecutivoNormalizado
+                        );
+
+                        if (duplicadoExistente) {
+
+                            const decision = await showConfirm({
+                                icon: '⚠️',
+                                title: 'DUPLICADO DETECTADO',
+                                body: `Ejecutivo: <strong style="color:var(--text)">${ejecutivo}</strong>\nArchivo anterior: <span style="color:var(--accent)">${duplicadoExistente.fileName}</span>\n\n¿Deseas procesar igualmente este archivo?`,
+                                confirmText: '✅ Procesar',
+                                cancelText: '🗑 Omitir',
+                            });
+
+                            // Si el operador NO quiere procesarlo
+                            if (!decision) {
+
+                                toast(
+                                    `🗑️ Duplicado omitido: "${ejecutivo}" no fue procesado.`,
+                                    'warning',
+                                    5000
+                                );
+
+                                continue;
+                            }
+
+                            // Si el operador SÍ quiere procesarlo
+                            toast(
+                                `✅ Duplicado autorizado manualmente para "${ejecutivo}".`,
+                                'info',
+                                5000
+                            );
+                        }
                         _state.processedData.push({
                             fileName: file.name,
                             safeName: `Liq_${safeName}.xlsx`,
@@ -2292,7 +2525,8 @@
                     if (_state.bdCuentasData && _state.convencionesData) verificarMatchesBanco();
                 }
 
-                setTimeout(() => overlay.classList.remove('active'), 500);
+                progressFill.style.width = '100%';
+                setTimeout(() => overlay.classList.remove('active'), 600);
 
                 if (localErrors.length > 0) {
                     toast(`Errores al procesar ${localErrors.length} archivo(s):\n${localErrors.map(e => `• ${e.file}: ${e.error}`).join('\n')}`, 'error', 8000);
@@ -2328,6 +2562,21 @@
             // ──────────────────────────────────────────────
             // AGENTEMOTOR
             // ──────────────────────────────────────────────
+            // ──────────────────────────────────────────────
+            // AGENTEMOTOR — listener valor unitario en tiempo real
+            // ──────────────────────────────────────────────
+            document.getElementById('valorAgenteMotor').addEventListener('input', () => {
+                if (!_state.agenteMotorData) return;
+                const valorUnitario = parseNumeric(document.getElementById('valorAgenteMotor').value);
+                let summaryHTML = '';
+                for (const [nombre, count] of Object.entries(_state.agenteMotorData)) {
+                    const desc = count * valorUnitario;
+                    summaryHTML += `<div class="agente-item"><span>${nombre}</span><span><strong>${count} uds</strong> = -$${desc.toLocaleString('en')}</span></div>`;
+                }
+                document.getElementById('agenteMotorList').innerHTML = summaryHTML;
+                saveConfig();
+            });
+
             document.getElementById('agenteMotorInput').addEventListener('change', async (e) => {
                 const file = e.target.files[0];
                 if (!file) return;
@@ -2370,6 +2619,7 @@
                     statusEl.innerHTML = `✅ ${Object.keys(_state.agenteMotorData).length} asesores`;
                     statusEl.className = 'agente-status ok';
                     document.getElementById('btnRecalcular').disabled = false;
+                    document.getElementById('btnAgenteMotor').disabled = false;
                     document.getElementById('agenteMotorPanel').classList.add('open');
 
                 } catch (err) {
@@ -2424,16 +2674,27 @@
                     else if (result.score < 100) parciales.push(`${p.ejecutivo} → ${result.nombre} (${result.score}%)`);
 
                     const descuento = count * valorUnitario;
-                    const subtotalAjustado = Math.max(0, p.subtotal_original - descuento);
-                    let retencion_val = 0, iva_val = 0, total_a_pagar = subtotalAjustado;
-                    if (isJuridico) {
-                        retencion_val = subtotalAjustado * retPct;
-                        iva_val = subtotalAjustado * ivaPct;
-                        total_a_pagar = subtotalAjustado - retencion_val + iva_val;
+                    let retencion_val = 0, iva_val = 0, total_comision, total_a_pagar;
+
+                    if (p.isJuridico) {
+                        // ─── JURÍDICO: Descuento DESPUÉS de impuestos ───
+                        // 1. Calcular impuestos sobre subtotal_original (sin descuento)
+                        retencion_val = p.subtotal_original * retPct;
+                        iva_val = p.subtotal_original * ivaPct;
+                        // 2. total_comision = subtotal_original (para la factura)
+                        total_comision = p.subtotal_original;
+                        // 3. total_a_pagar = subtotal - retención + IVA - descuento
+                        total_a_pagar = Math.max(0, p.subtotal_original - retencion_val + iva_val - descuento);
+                    } else {
+                        // ─── NATURAL: Lógica original (descuento ANTES) ───
+                        const subtotalAjustado = Math.max(0, p.subtotal_original - descuento);
+                        total_comision = subtotalAjustado;
+                        total_a_pagar = subtotalAjustado;
                     }
+
                     p.agenteMotorCount = count;
                     p.agenteMotorDescuento = Math.round(descuento);
-                    p.total_comision = Math.round(subtotalAjustado);
+                    p.total_comision = Math.round(total_comision);
                     p.retencion_val = Math.round(retencion_val);
                     p.iva_val = Math.round(iva_val);
                     p.total_a_pagar = Math.round(total_a_pagar);
@@ -2842,10 +3103,7 @@
                 } else {
                     writeStrCell(currentRow, emptyPad, 'SUBTOTAL COMISIONES', totalStyle);
                     writeIntCell(currentRow, emptyPad + 1, data.subtotal_original, totalStyle); currentRow++;
-                    if (data.agenteMotorDescuento > 0) {
-                        writeStrCell(currentRow, emptyPad, `DESCUENTO AGENTEMOTOR (${data.agenteMotorCount} unidades)`, discountStyle);
-                        writeIntCell(currentRow, emptyPad + 1, -data.agenteMotorDescuento, discountStyle); currentRow++;
-                    }
+                    // ─── NOTA: El descuento AgenteMotor para jurídicos se aplica DESPUÉS de impuestos ───
                     writeStrCell(currentRow, emptyPad, 'TOTAL COMISIONES', totalStyle);
                     writeIntCell(currentRow, emptyPad + 1, data.total_comision, totalStyle); currentRow += 3;
 
@@ -2864,8 +3122,17 @@
                     writeStrCell(currentRow, fPad, `IVA GENERADO (${data.iva_pct}%)`, { border: borderStyle, alignment: { horizontal: 'left' } });
                     writeIntCell(currentRow, fPad + 1, data.iva_val, { border: borderStyle, alignment: { horizontal: 'right' } });
                     for (let c = 0; c < fPad; c++) writeStrCell(currentRow, c, '', { border: noBorderStyle }); currentRow++;
-                    writeStrCell(currentRow, fPad, 'TOTAL A PAGAR', { font: { bold: true, sz: 12, color: { rgb: '1F4E78' } }, border: borderStyle, alignment: { horizontal: 'left' } });
-                    writeIntCell(currentRow, fPad + 1, data.total_a_pagar, { font: { bold: true, sz: 12, color: { rgb: '1F4E78' } }, border: borderStyle, alignment: { horizontal: 'right' } });
+                    writeStrCell(currentRow, fPad, 'TOTAL A PAGAR (antes descuentos)', { font: { bold: true, sz: 11, color: { rgb: '1F4E78' } }, border: borderStyle, alignment: { horizontal: 'left' } });
+                    const totalAntesDescuento = data.total_a_pagar + data.agenteMotorDescuento;
+                    writeIntCell(currentRow, fPad + 1, totalAntesDescuento, { font: { bold: true, sz: 11, color: { rgb: '1F4E78' } }, border: borderStyle, alignment: { horizontal: 'right' } });
+                    for (let c = 0; c < fPad; c++) writeStrCell(currentRow, c, '', { border: noBorderStyle }); currentRow++;
+                    if (data.agenteMotorDescuento > 0) {
+                        writeStrCell(currentRow, fPad, `DESCUENTO AGENTEMOTOR (${data.agenteMotorCount} unidades)`, discountStyle);
+                        writeIntCell(currentRow, fPad + 1, -data.agenteMotorDescuento, discountStyle);
+                        for (let c = 0; c < fPad; c++) writeStrCell(currentRow, c, '', { border: noBorderStyle }); currentRow++;
+                    }
+                    writeStrCell(currentRow, fPad, 'TOTAL A PAGAR', { font: { bold: true, sz: 12, color: { rgb: '1F4E78' } }, fill: { fgColor: { rgb: '00F0FF' } }, border: borderStyle, alignment: { horizontal: 'left' } });
+                    writeIntCell(currentRow, fPad + 1, data.total_a_pagar, { font: { bold: true, sz: 12, color: { rgb: '1F4E78' } }, fill: { fgColor: { rgb: '00F0FF' } }, border: borderStyle, alignment: { horizontal: 'right' } });
                     for (let c = 0; c < fPad; c++) writeStrCell(currentRow, c, '', { border: noBorderStyle });
                 }
 
